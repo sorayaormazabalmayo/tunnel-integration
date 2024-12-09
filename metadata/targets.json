@@ -2,34 +2,22 @@
  "signatures": [
   {
    "keyid": "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a",
-   "sig": "304402204764964ac7cc74026800bc08e3e0488b382440b13a8745970533bc4b9df22300022048893ef457a3b3ce5f1a302306e04b3ec1758020c518f78690872b44abebe5a9"
+   "sig": ""
   }
  ],
  "signed": {
   "_type": "targets",
-  "expires": "2025-12-09T13:37:47Z",
+  "expires": "2025-12-09T13:46:47Z",
   "spec_version": "1.0.31",
   "targets": {
-   "HelloWorld": {
-    "hashes": {
-     "sha256": "23063005c7fbcee7bac5b763a12c7ae8d39b3897bd2dca3b2484de1e1128f981"
-    },
-    "length": 2141893
-   },
    "HelloWorld_1": {
     "hashes": {
      "sha256": "d8f76ef6714fa16d94582fc7b55dd8825c15716e7cd6f82be60f7824562ff94d"
     },
     "length": 2142626
-   },
-   "file1.txt": {
-    "hashes": {
-     "sha256": "4e41f1c7bc453083321697e1886e8c63cd45e033c6eec129bde796c3ef26d71a"
-    },
-    "length": 23
    }
   },
-  "version": 4,
+  "version": 5,
   "x-tuf-on-ci-expiry-period": 365,
   "x-tuf-on-ci-signing-period": 60
  }
