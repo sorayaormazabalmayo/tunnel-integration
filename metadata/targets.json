@@ -2,12 +2,12 @@
  "signatures": [
   {
    "keyid": "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a",
-   "sig": "304402203c669483aaf6dd4b9d9170d25d8f2671c7d1e06db4ba840d16332ee5b0199c44022016a32ad2641de19dd0064f99d68cc0af057d8e6b052623d02b4b3a9e79824a67"
+   "sig": "3045022021b81ee5aa606fe4ff66e14d7545b298ffdf2ddcc5e6be44d51807b88ee5d267022100882cfed0758db59f8d6635bbbcd92f2314082f4e647b8bfbbc6d92b47222b92a"
   }
  ],
  "signed": {
   "_type": "targets",
-  "expires": "2025-12-09T14:55:41Z",
+  "expires": "2025-12-11T07:32:54Z",
   "spec_version": "1.0.31",
   "targets": {
    "HelloWorld_1": {
@@ -27,9 +27,15 @@
      "sha256": "5d19f2a2910b9f174c5d491bcd975a64de0ea54409e6ada423d340b7f1422307"
     },
     "length": 2142626
+   },
+   "HelloWorld_4": {
+    "hashes": {
+     "sha256": "9071269e079ce136e91424a5b8ae94050dd304334308d0ef56fde4ee6b77cbe3"
+    },
+    "length": 2141893
    }
   },
-  "version": 6,
+  "version": 7,
   "x-tuf-on-ci-expiry-period": 365,
   "x-tuf-on-ci-signing-period": 60
  }
