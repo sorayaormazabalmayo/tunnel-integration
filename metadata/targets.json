@@ -2,22 +2,22 @@
  "signatures": [
   {
    "keyid": "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a",
-   "sig": "304402205115076ff397555fe7980f9566bacfb407133b8514cfc428521e38dd4e26331202205ba5404ac109a98ca941c95dff6da27a7c2e09e78b7737d6612d71cf5b24da0f"
+   "sig": ""
   }
  ],
  "signed": {
   "_type": "targets",
-  "expires": "2025-12-12T08:35:13Z",
+  "expires": "2025-12-12T08:47:15Z",
   "spec_version": "1.0.31",
   "targets": {
    "HelloWorld.go": {
     "hashes": {
-     "sha256": "745be4d471e66462629ee24c38885cbc50521f125bdb9556976bf20f6173f076"
+     "sha256": "507f6525312cc1ebce4cbac42968ea956c330768bb45e13c79360cd5830d5df7"
     },
     "length": 94
    }
   },
-  "version": 9,
+  "version": 10,
   "x-tuf-on-ci-expiry-period": 365,
   "x-tuf-on-ci-signing-period": 60
  }
