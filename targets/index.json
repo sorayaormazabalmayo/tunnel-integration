@@ -54,5 +54,19 @@
       "sha256": "c7e17acd4e27a7e173c7918580ba3f83183f3e2e51daadcb23b32224fe9c6f09"
     },
     "version": "v1.1.11"
+  },
+  "nebula-v1.1.10.go": {
+    "length": 76,
+    "hashes": {
+      "sha256": "dfeb93a1e8afb9609e4355829781da80ed23d306d5b9403a4905a28e0838b5c1"
+    },
+    "version": "v1.1.10"
+  },
+  "nebula-v1.2.1": {
+    "length": 1823249,
+    "hashes": {
+      "sha256": "af8efa7bae6f41009d5f91e3991ca40ec1784afc88f5f010af70c1e8402b2836"
+    },
+    "version": "v1.2.1"
   }
 }
