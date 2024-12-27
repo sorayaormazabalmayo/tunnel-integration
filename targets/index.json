@@ -2,8 +2,8 @@
   "nebula-standalone": {
     "length": 1823217,
     "hashes": {
-      "sha256": "da62fffa2ad8d8edbfd3813103522173430114398cf1077c6091826fefbb3314"
+      "sha256": "aa525fe60be365266590bc2307a45aeec1255196dd3d6d82be620842f118852f"
     },
-    "version": "2024.12.26-16.07.57"
+    "version": "2024.12.27-13.05.12"
   }
 }
