@@ -2,15 +2,43 @@
  "signatures": [
   {
    "keyid": "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a",
-   "sig": "3046022100b179b6fbfc5ddd3d2a2a6be95c9c27beba6f64fdb14e6ca431d237a4dc0d7d8d02210089043d75f8bafba3055cff4cbace51c8ec4bfad7abf3506dfc5a5679e0d9d3af"
+   "sig": ""
   }
  ],
  "signed": {
   "_type": "targets",
-  "expires": "2025-12-09T09:22:58Z",
+  "delegations": {
+   "keys": {
+    "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a": {
+     "keytype": "ecdsa",
+     "keyval": {
+      "public": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEsOWPsISez0E70CLYo05us03bGS/k\n2BUV0zlbJXUO4t3IEHqtsiON3yApsxY5ydKeY1Za9Bq9uFLi2zlR5GxgCQ==\n-----END PUBLIC KEY-----\n"
+     },
+     "scheme": "ecdsa-sha2-nistp256",
+     "x-tuf-on-ci-keyowner": "@sorayaormazabalmayo"
+    }
+   },
+   "roles": [
+    {
+     "keyids": [
+      "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a"
+     ],
+     "name": "device-cli",
+     "paths": [
+      "device-cli/*",
+      "device-cli/*/*",
+      "device-cli/*/*/*",
+      "device-cli/*/*/*/*"
+     ],
+     "terminating": true,
+     "threshold": 1
+    }
+   ]
+  },
+  "expires": "2026-01-02T07:55:47Z",
   "spec_version": "1.0.31",
   "targets": {},
-  "version": 1,
+  "version": 2,
   "x-tuf-on-ci-expiry-period": 365,
   "x-tuf-on-ci-signing-period": 60
  }
