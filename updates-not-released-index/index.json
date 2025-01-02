@@ -1,9 +1,23 @@
 {
   "nebula-standalone": {
-    "length": 1823217,
+    "length": 1823225,
     "hashes": {
-      "sha256": "f582d4b7d6157f28e5e9beff35290aed208a6812a6dd58c974672772c8f333bc"
+      "sha256": "5f4c3988d2ee047d3cec48b27338dc5fae1ea45448b61b127d7bfa21440ccd12"
     },
-    "version": "2024.12.27-13.59.07"
+    "version": "2025.01.02-11.22.36"
+  },
+  "device-cli": {
+    "length": 1823225,
+    "hashes": {
+      "sha256": "5f32558c2168221f416071edb721addf9df535cc5131d24e99edefebf41c0b32"
+    },
+    "version": "2025.01.02-11.22.36"
+  },
+  "tunnel-integration": {
+    "length": 1823225,
+    "hashes": {
+      "sha256": "cac408d3d7fe175941b51de9aeaa972caf960b4b0892c05fe483eb756e3ca7e2"
+    },
+    "version": "2025.01.02-11.22.36"
   }
 }
