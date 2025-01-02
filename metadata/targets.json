@@ -2,7 +2,7 @@
  "signatures": [
   {
    "keyid": "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a",
-   "sig": "304402207acca0bdee1526f2b09caeef0cc1558e9f9de22e7b45a8651f96562788fe7ef202201dc74621c80267c1fba902b8ef559796c07780c31eeb24091b5232923aee9e0c"
+   "sig": ""
   }
  ],
  "signed": {
@@ -32,10 +32,24 @@
      ],
      "terminating": true,
      "threshold": 1
+    },
+    {
+     "keyids": [
+      "47167821e560e0b9e078f6ce5654683b880232e473daaf9b60b335dbcaf5740a"
+     ],
+     "name": "nebula-standalone",
+     "paths": [
+      "nebula-standalone/*",
+      "nebula-standalone/*/*",
+      "nebula-standalone/*/*/*",
+      "nebula-standalone/*/*/*/*"
+     ],
+     "terminating": true,
+     "threshold": 1
     }
    ]
   },
-  "expires": "2026-01-02T07:55:47Z",
+  "expires": "2026-01-02T07:56:58Z",
   "spec_version": "1.0.31",
   "targets": {},
   "version": 2,
