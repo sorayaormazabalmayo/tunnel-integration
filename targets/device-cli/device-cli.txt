@@ -1,1 +1,1 @@
-device-cli version 1
+device-cli version 2
