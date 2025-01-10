@@ -1,4 +1,4 @@
-name: 'Build and Test Binary'
+name: 'Build and Make a Release'
 
 on:
   workflow_dispatch:

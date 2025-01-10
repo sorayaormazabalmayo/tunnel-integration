@@ -6,7 +6,7 @@ on:
       - '**/*.go'  # Trigger when Go files in the source-code directory change.
 
 jobs:
-  build-and-upload:
+  build-and-test-files:
     name: 'Build and Test Go Files'
     runs-on: ubuntu-latest
     permissions:
@@ -53,6 +53,7 @@ jobs:
 
   test-build-files: 
     name: Test build files 
+    needs: build-and-test-files
     runs-on: ubuntu-latest
     steps: 
       - name: Simulating that some testings are done
