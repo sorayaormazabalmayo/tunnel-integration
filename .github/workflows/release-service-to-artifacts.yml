@@ -48,32 +48,21 @@ jobs:
           name: build-artifacts
           path: build/
 
-  test-build-files: 
-    name: Test build files 
-    runs-on: ubuntu-latest
-    steps: 
-      # Step 1: Simulating that some testings are done
+      # Step 5: Simulating that some testings are done
       - name: Simulating that some testings are done
         run: |
           echo "Simulating that some testings are done"
     
-  create-release: 
-    name: Create GitHub Release
-    runs-on: ubuntu-latest
-    needs: [build-and-test-go-files, test-build-files]
-    permissions: 
-      contents: write  # Required to create a release
-    steps: 
-      # Step 1: Checkout the repository
+      # Step 6: Checkout the repository
       - name: Checkout the Repository
         uses: actions/checkout@v3
 
-      # Step 2: Compress Build Artifacts
+      # Step 7: Compress Build Artifacts
       - name: Compress Build Artifacts
         run: |
           zip -r build_artifacts.zip build/
 
-      # Step 3: Create a release
+      # Step 8: Create a release
       - name: Create a GitHub Release
         uses: actions/create-release@v1
         with:
@@ -86,7 +75,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 4: Upload the build artifacts to the release
+      # Step 9: Upload the build artifacts to the release
       - name: Upload the build artifacts to the release
         uses: actions/upload-release-asset@v1
         with: 
