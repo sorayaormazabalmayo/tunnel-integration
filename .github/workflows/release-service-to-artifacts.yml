@@ -96,3 +96,16 @@ jobs:
           asset_path: build_artifacts.zip
           asset_name: build_artifacts.zip
           asset_content_type: application/zip
+
+     # Step 10: Login to Google Cloud Registry
+      - name:  Authenticate with Google Cloud 
+        uses: google-github-actions/auth@v2
+        with: 
+          token-format: access-token
+          workload_identity_provider: projects/185640679849/locations/global/workloadIdentityPools/github/providers/github-prov
+          service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
+          access_token_lifetime: '600s'
+
+     # Step 11: Upload the artifacts to Google Artifact Registry
+
+
