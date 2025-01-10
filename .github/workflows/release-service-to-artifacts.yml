@@ -62,8 +62,17 @@ jobs:
               echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
           fi
           echo "Generated tag: ${{ env.tag }}"
+      # Step 7: Verifying GitHub Token
+     - name: Verify GITHUB_TOKEN
+        run: |
+          if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+              echo "Error: GITHUB_TOKEN is not set."
+              exit 1
+          else
+             echo "GITHUB_TOKEN is available."
+          fi
 
-      # Step 7: Create a release
+      # Step 8: Create a release
       - name: Create a GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -78,7 +87,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 8: Upload the build artifacts to the release
+      # Step 9: Upload the build artifacts to the release
       - name: Upload the build artifacts to the release
         uses: actions/upload-release-asset@v1
         with:
