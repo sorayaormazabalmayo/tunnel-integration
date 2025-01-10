@@ -2,11 +2,6 @@ name: 'Build, Test, and Release'
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Number of the version of device-cli released in this day'
-        required: true
-        default: '1'
 
 jobs:
   build-and-release:
@@ -52,12 +47,19 @@ jobs:
       - name: Compress Build Artifacts
         run: |
           zip -r build_artifacts.zip build/
+      
+      # Step 6: Compute the SHA256 of the build_artifacts.zip
 
-      # Step 6: Generate Unique Tag if Not Provided
-      - name: Generate Unique Tag if Not Provided
-        id: generate_tag
+      - name: Computing the SHA256 of the .zip
         run: |
-          echo "tag=v$(date +'%Y%m%d%H%M%S')-${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+          echo "Computing SHA256 checksum of the .zip"
+          echo "digest=$(sha256sum build_artifacts.zip | awk '{ print $1 }')" >> $GITHUB_ENV
+
+      # Step 6: Generate calendar versioning
+      - name: Generate Calendar Versioning
+        id: calendar_version
+        run: |
+          echo "tag=v$(date +'%Y.%m.%d%')-${{ env.digest }}" >> $GITHUB_ENV
           echo "Generated tag: ${{ env.tag }}"
 
       # Step 7: Verifying GitHub Token
