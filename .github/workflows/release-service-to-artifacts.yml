@@ -17,6 +17,7 @@ jobs:
       id-token: write
     env:
       TZ: Europe/Madrid  # Set the timezone to your local timezone
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       # Step 1: Clone the source repository
