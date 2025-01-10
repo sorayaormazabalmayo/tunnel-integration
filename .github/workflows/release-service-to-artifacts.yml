@@ -48,6 +48,12 @@ jobs:
           name: build-artifacts
           path: build/
 
+      # Step 5: Show Build Results
+      - name: List Build Output
+        run: |
+        echo "Build outputs:"
+        ls -lh build/
+
       # Step 5: Simulating that some testings are done
       - name: Simulating that some testings are done
         run: |
