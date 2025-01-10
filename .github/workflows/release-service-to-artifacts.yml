@@ -77,8 +77,6 @@ jobs:
       - name: Create a GitHub Release
         id: create_release
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.tag }}
           release_name: "Release ${{ env.tag }}"
@@ -88,6 +86,7 @@ jobs:
             Includes build artifacts.
           draft: false
           prerelease: false
+          
 
       # Step 9: Upload the build artifacts to the release
       - name: Upload the build artifacts to the release
