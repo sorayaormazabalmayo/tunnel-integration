@@ -112,7 +112,7 @@ jobs:
             filename=$(basename "$file")
             echo "Processing $file... inside package $filename"
             echo "Uploading $file with version $version..."
-            gcloud artifacts packages upload \
+            gcloud artifacts generic upload \
               --repository=nebula-storage \
               --location=europe-southwest1 \
               --project=polished-medium-445107-i9 \
