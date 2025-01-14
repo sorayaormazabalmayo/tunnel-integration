@@ -1,4 +1,4 @@
-name: 'Build and Test Binary'
+name: 'Build and Test Updates'
 
 on:
   push:
@@ -6,7 +6,9 @@ on:
       - '**/*.go'  # Trigger when Go files in the source-code directory change.
 
 jobs:
-  build-and-test-files:
+
+  # Job 1: Build files
+  build-files:
     name: 'Build and Test Go Files'
     runs-on: ubuntu-latest
     permissions:
@@ -50,10 +52,10 @@ jobs:
           echo "Build outputs:"
           ls -lh build/
 
-
+  # Job 2: Test Built files
   test-build-files: 
-    name: Test build files 
-    needs: build-and-test-files
+    name: Test built files 
+    needs: build-files
     runs-on: ubuntu-latest
     steps: 
       - name: Simulating that some testings are done

@@ -1,0 +1,31 @@
+name: 'Release Last Uploaded Binary of Google Artifact Registry to Clients'
+
+on: 
+    workflow_dispatch:
+
+jobs:
+    get-last-uploaded-version-and-release-to-clients:
+        name: 'Get last uploaded version and release to clients'
+        runs-on: ubuntu-latest
+        permissions: 
+            contents: write
+            id-token: write
+        env:
+            TZ: Europe/Madrid
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        steps:
+            # Step 1: Clone the source repository
+            - name: Checkout Repository
+              uses: actions/checkout@v3
+
+            # Step 2: Login to Google Cloud Registry
+            - name: Authenticate with Google Cloud
+              uses: google-github-actions/auth@v2
+              with:
+                token_format: access_token
+                workload_identity_provider: projects/185640679849/locations/global/workloadIdentityPools/github/providers/github-prov
+                service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
+                access_token_lifetime: '600s'
+            # Step 3: Getting the latest uploaded version of tunnel-integration
+
