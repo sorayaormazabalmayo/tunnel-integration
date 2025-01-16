@@ -202,7 +202,7 @@ jobs:
           echo "Updated $index_name"
           cat "$index_name"
 
-      # Step 14: Commit and Push index.json to the Target Repository
+      # Step 15: Commit and Push index.json to the Target Repository
       - name: Commit and Push index.json
         env:
           GITHUB_TOKEN: ${{ secrets.TUF_REPO_PAT }}
