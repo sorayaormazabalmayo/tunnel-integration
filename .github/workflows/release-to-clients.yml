@@ -12,7 +12,7 @@ jobs:
       # Step 1: Clone the Target Repository
       - name: Clone Target Repository
         env:
-          TUF_REPO_URL: ${{ secrets.TUF_REPO_URL }}
+          TUF_REPO_URL: ${{ secrets.TUF_REPO_PAT }}
         run: |
           echo "Cloning the TUF repository..."
           git clone "$TUF_REPO_URL" tuf-repo
