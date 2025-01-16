@@ -172,7 +172,7 @@ jobs:
           echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
 
           # Update the JSON index file
-          jq --arg file "$filename" \
+          jq --arg file "$basename" \
             --arg length "$length" \
             --arg sha256 "$sha256" \
             --arg version "$version" \
