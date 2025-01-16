@@ -188,7 +188,7 @@ jobs:
           version="${{ env.tag }}"
 
           # Path in which the .zip is stored in the Google Artifact Registry
-          path=https://artifactregistry.googleapis.com/download/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${service_name}:${version}:${zip_name}:download?alt=media
+          path="https://artifactregistry.googleapis.com/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${service_name}/${version}/${zip_name}?alt=media"
 
           echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
 
@@ -197,11 +197,12 @@ jobs:
             --arg length "$length" \
             --arg sha256 "$sha256" \
             --arg version "$version" \
-            -- arg path "$path" \
+            --arg path "$path" \
             '.[$file] = {length: ($length | tonumber), path: $path, hashes: {sha256: $sha256}, version: $version}' "$index_name" > tmp.json && mv tmp.json "$index_name"
 
           echo "Updated $index_name"
           cat "$index_name"
+
 
       # Step 15: Commit and Push index.json to the Target Repository
       - name: Commit and Push index.json
