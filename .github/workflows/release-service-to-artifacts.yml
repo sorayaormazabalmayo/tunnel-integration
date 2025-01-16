@@ -83,7 +83,7 @@ jobs:
               echo "GITHUB_TOKEN is available."
           fi
 
-      # Step 9: Create a release
+      # Step 10: Create a release
       - name: Create a GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -97,7 +97,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 10: Upload the build artifacts to the release
+      # Step 11: Upload the build artifacts to the release
       - name: Upload the build artifacts to the release
         uses: actions/upload-release-asset@v1
         with:
@@ -106,7 +106,7 @@ jobs:
           asset_name: ${{ env.zip_name }}
           asset_content_type: application/zip
 
-      # Step 11: Login to Google Cloud Registry
+      # Step 12: Login to Google Cloud Registry
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with: 
@@ -115,7 +115,7 @@ jobs:
           service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
           access_token_lifetime: '600s'
 
-      # Step 12: Upload the artifacts to Google Artifact Registry
+      # Step 13: Upload the artifacts to Google Artifact Registry
       - name: Pushing the .zip to Google Artifact Registry
         id: pushing-GAR
         run: |
@@ -141,7 +141,7 @@ jobs:
           echo "Successfully uploaded $file to Google Artifact Registry"
       
 
-        # Step 13: Clone the target repository
+        # Step 14: Clone the target repository
       - name: Clone Target Repository
         run: |
           echo "Cloning target repository for index.json..."
@@ -151,7 +151,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p updates-not-released-index
 
-      # Step 14: Generate or Update index.json
+      # Step 15: Generate or Update index.json
       - name: Update index.json with new versions
         run: |
           released_artifact=${zip_name}
@@ -204,7 +204,7 @@ jobs:
           cat "$index_name"
 
 
-      # Step 15: Commit and Push index.json to the Target Repository
+      # Step 16: Commit and Push index.json to the Target Repository
       - name: Commit and Push index.json
         env:
           GITHUB_TOKEN: ${{ secrets.TUF_REPO_PAT }}
