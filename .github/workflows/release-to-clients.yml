@@ -50,7 +50,7 @@ jobs:
       - name: Move ${GITHUB_REPOSITORY}'s index file to its corresponding repository
         run: |
 
-            echo: "${GITHUB_REPOSITORY}"
+            echo "${GITHUB_REPOSITORY}"
             filename="${GITHUB_REPOSITORY}-index.json"
             echo "File name: $filename"
 
