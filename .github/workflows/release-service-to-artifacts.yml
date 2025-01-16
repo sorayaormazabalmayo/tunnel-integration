@@ -63,8 +63,9 @@ jobs:
       - name: Generate Calendar Versioning
         id: calendar_version
         run: |
-          echo "tag=v$(date +'%Y.%m.%d')-${{ env.digest }}" >> $GITHUB_ENV
-          echo "Generated tag: ${{ env.tag }}"
+          tag="v$(date +'%Y.%m.%d')-${{ env.digest }}"
+          echo "tag=$tag" >> $GITHUB_ENV
+          echo "Generated tag: $tag"
 
       # Step 7: Verifying GitHub Token
       - name: Verify GITHUB_TOKEN
