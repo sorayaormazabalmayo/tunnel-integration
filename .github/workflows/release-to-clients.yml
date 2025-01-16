@@ -21,10 +21,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       # Step 2: List all the -index.json files in updates-not-released
-      - name: List the -index.json files in updates-not-released
+      - name: List the -index.json files in updates-not-released-index
         run: |
-          echo "Listing the -index.json files in the 'updates-not-released' folder..."
-          find tuf-repo/updates-not-released -type f -name '*-index.json'
+          echo "Listing the -index.json files in the 'updates-not-released-index' folder..."
+          find tuf-repo/updates-not-released-index -type f -name '*-index.json'
 
       # Step 2: Compute SHA256 hash of the file in the updates-not-released folder
       - name: Get the Branch Name
