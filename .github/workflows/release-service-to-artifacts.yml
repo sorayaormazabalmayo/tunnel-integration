@@ -46,14 +46,16 @@ jobs:
       # Step 5: Compress Build Artifacts
       - name: Compress Build Artifacts
         run: |
-          zip -r tunnel-integration.zip build/
+          service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+          zip_name ="${service_name}.zip"
+          zip -r "${zip_name}" build/
       
       # Step 6: Compute the SHA256 of the tunnel-integration.zip
 
       - name: Computing the SHA256 of the .zip
         run: |
           echo "Computing SHA256 checksum of the .zip"
-          echo "digest=$(sha256sum tunnel-integration.zip | awk '{ print $1 }')" >> $GITHUB_ENV
+          echo "digest=$(sha256sum ${zip_name}| awk '{ print $1 }')" >> $GITHUB_ENV
 
       # Step 6: Generate calendar versioning
       - name: Generate Calendar Versioning
@@ -91,8 +93,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: tunnel-integration.zip
-          asset_name: tunnel-integration.zip
+          asset_path: ${zip_name}
+          asset_name: ${zip_name}
           asset_content_type: application/zip
 
       # Step 10: Login to Google Cloud Registry
@@ -118,7 +120,7 @@ jobs:
               --repository=nebula-storage \
               --location=europe-southwest1 \
               --project=polished-medium-445107-i9 \
-              --package="tunnel-integration" \
+              --package=${service_name} \
               --version="$version" \
               --source="$file"
           done
@@ -136,7 +138,7 @@ jobs:
       # Step 13: Generate or Update index.json
       - name: Update index.json with new versions
         run: |
-          released_artifact="tunnel-integration.zip"
+          released_artifact=${zip_name}
           
           # Verify the artifact exists
           if [ ! -f "$released_artifact" ]; then
