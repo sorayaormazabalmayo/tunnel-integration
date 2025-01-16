@@ -78,5 +78,5 @@ jobs:
           cd tuf-repo
           git add targets/
           git commit -m "Move index.json from updates-not-released-index to targets/"
-          git push "$TUF_REPO_URL" ${{ steps.compute-branch.outputs.branch }}
+          git push origin ${{ steps.compute-branch.outputs.branch }} 
 
