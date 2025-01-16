@@ -51,29 +51,29 @@ jobs:
           echo "zip_name=$zip_name" >> $GITHUB_ENV
           zip -r "$zip_name" build/
           
-      
-      # Step 6: Compute the SHA256 of the tunnel-integration.zip
-
-      - name: Computing the SHA256 of the .zip
+      # Step 6: Compute the SHA256
+      - name: Compute the SHA256 of the .zip
         run: |
           echo "Computing SHA256 checksum of the .zip"
-          echo "digest=$(sha256sum ${zip_name}| awk '{ print $1 }')" >> $GITHUB_ENV
+          digest=$(sha256sum "${{ env.zip_name }}" | awk '{ print $1 }')
+          echo "digest=$digest" >> $GITHUB_ENV
+          echo "SHA256 checksum is: $digest"
 
-          - name: Generate Calendar Versioning
-          id: calendar_version
-          run: |
-            digest="example-digest" # Replace this with the actual digest logic
-            tag="v$(date +'%Y.%m.%d')-$digest"
-            echo "tag=$tag" >> $GITHUB_ENV
-            echo "Generated tag: $tag"
+      # Step 7: Generate Calendar Versioning
+      - name: Generate Calendar Versioning
+        id: calendar_version
+        run: |
+          tag="v$(date +'%Y.%m.%d')-${{ env.digest }}"
+          echo "tag=$tag" >> $GITHUB_ENV
+          echo "Generated tag: $tag"
 
-      # Step 7: Debug Generated Tag
+      # Step 8: Debug Generated Tag
       
       - name: Debug Generated Tag
         run: |
           echo "Tag is: ${{ env.tag }}"
         
-      # Step 8: Verifying GitHub Token
+      # Step 9: Verifying GitHub Token
       - name: Verify GITHUB_TOKEN
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
