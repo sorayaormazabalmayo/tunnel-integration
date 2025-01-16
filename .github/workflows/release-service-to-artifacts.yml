@@ -188,7 +188,7 @@ jobs:
           version="${{ env.tag }}"
 
           # Path in which the .zip is stored in the Google Artifact Registry
-          path="https://artifactregistry.googleapis.com/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${service_name}/${version}/${zip_name}?alt=media"
+          path="https://artifactregistry.googleapis.com/download/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${service_name}/${version}/${zip_name}?alt=media"
 
           echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
 
