@@ -136,8 +136,8 @@ jobs:
       # Step 13: Generate or Update index.json
       - name: Update index.json with new versions
         run: |
-          released_artifact="tunnel-integration.zip"
 
+          released_artifact="tunnel-integration.zip"
           # Verify the artifact exists
           if [ ! -f "$released_artifact" ]; then
           echo "Error: Released artifact $released_artifact not found."
@@ -154,8 +154,8 @@ jobs:
           echo "Artifact SHA256: $sha256"
 
           # Extract the filename from the artifact
-          filename=$(basename "$file")
-          echo "The filename is: $file"
+          filename=$released_artifact
+          echo "The filename is: $filename"
 
           # Correct the index.json file path
           index_name="tuf-repo/updates-not-released-index/${filename}-index.json"
