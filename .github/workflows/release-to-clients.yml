@@ -64,7 +64,7 @@ jobs:
             mkdir -p "targets/$name"
             
             # Move the file to the new directory
-            mv "updates-not-released-index/$filename" "targets/$name"
+            mv "tuf-repo/updates-not-released-index/$filename" "tuf-repo/targets/$name"
 
             echo "Moved $filename to targets/$name folder."
         
