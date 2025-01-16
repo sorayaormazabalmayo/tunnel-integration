@@ -167,13 +167,13 @@ jobs:
           echo '{}' > "$index_name"
 
           # Access the version output from the previous step
-          version="${{ steps.pushing-GAR.outputs.version }}"
+          version="${{ env.tag }}"
 
           echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
 
           # Update the JSON index file
           jq --arg file "$filename" \
-            --arg length "$length" \
+            --arg length "$length" \s
             --arg sha256 "$sha256" \
             --arg version "$version" \
             '.[$file] = {length: ($length | tonumber), hashes: {sha256: $sha256}, version: $version}' "$index_name" > tmp.json && mv tmp.json "$index_name"
