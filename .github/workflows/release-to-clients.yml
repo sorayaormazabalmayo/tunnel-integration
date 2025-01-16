@@ -77,4 +77,4 @@ jobs:
           cd tuf-repo
           git add targets/
           git commit -m "Move index.json from updates-not-released-index to targets/"
-          git push origin ${{ steps.compute-branch.outputs.branch }} 
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git ${{ steps.compute-branch.outputs.branch }}
