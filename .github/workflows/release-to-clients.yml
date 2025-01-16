@@ -52,6 +52,7 @@ jobs:
       # Step 5: Move index.json to the Targets Folder
       - name: Move ${GITHUB_REPOSITORY}'s index file to its corresponding repository
         run: |
+          cd tuf-repo
           echo "${GITHUB_REPOSITORY}"
           repo_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
           filename="${repo_name}-index.json"
