@@ -7,6 +7,9 @@ jobs:
   push-target-file:
     name: 'Push Target File to TUF Repository'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
       # Step 1: Clone the Target Repository
@@ -26,7 +29,7 @@ jobs:
           echo "Listing the -index.json files in the 'updates-not-released-index' folder..."
           find tuf-repo/updates-not-released-index -type f -name '*-index.json'
 
-      # Step 2: Compute SHA256 hash of the file in the updates-not-released folder
+      # Step 3: Compute SHA256 hash of the file in the updates-not-released folder
       - name: Get the Branch Name
         id: compute-branch
         run: |
@@ -38,7 +41,7 @@ jobs:
           echo "::set-output name=branch::$branch_name"
         shell: bash
 
-      # Step 3: Create and Checkout the Computed Branch
+      # Step 4: Create and Checkout the Computed Branch
       - name: Create and Checkout New Branch
         run: |
           cd tuf-repo
@@ -46,30 +49,28 @@ jobs:
           git checkout -b $branch_name
           echo "Created and switched to branch $branch_name."
 
-      # Step 4: Move index.json to the Targets Folder
+      # Step 5: Move index.json to the Targets Folder
       - name: Move ${GITHUB_REPOSITORY}'s index file to its corresponding repository
         run: |
+          echo "${GITHUB_REPOSITORY}"
+          repo_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+          filename="${repo_name}-index.json"
+          echo "File name: $filename"
 
-            echo "${GITHUB_REPOSITORY}"
-            repo_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
-            filename="${repo_name}-index.json"
-            echo "File name: $filename"
+          # Remove the '-index.json' suffix to get 'something'
+          name=$(echo "$filename" | sed 's/-index\.json$//')
 
-            # Remove the '-index.json' suffix to get 'something'
-            name=$(echo "$filename" | sed 's/-index\.json$//')
+          echo "Moving $filename from updates-not-released-index to targets/$name..."
+          
+          # Create the target directory if it doesn't exist
+          mkdir -p "targets/$name"
+          
+          # Move the file to the new directory
+          mv "tuf-repo/updates-not-released-index/$filename" "tuf-repo/targets/$name"
 
-            echo "Moving $filename from updates-not-released-index to targets/$name..."
-            
-            # Create the target directory if it doesn't exist
-            mkdir -p "targets/$name"
-            
-            # Move the file to the new directory
-            mv "tuf-repo/updates-not-released-index/$filename" "tuf-repo/targets/$name"
+          echo "Moved $filename to targets/$name folder."
 
-            echo "Moved $filename to targets/$name folder."
-        
-
-      # Step 5: Commit and Push Changes to the TUF Repository
+      # Step 6: Commit and Push Changes to the TUF Repository
       - name: Commit and Push Changes
         env:
           GITHUB_TOKEN: ${{ secrets.TUF_REPO_PAT }}
@@ -77,4 +78,4 @@ jobs:
           cd tuf-repo
           git add targets/
           git commit -m "Move index.json from updates-not-released-index to targets/"
-          git push origin ${{ steps.compute-branch.outputs.branch }} 
+          git push origin ${{ steps.compute-branch.outputs.branch }}
