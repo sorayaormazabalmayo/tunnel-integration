@@ -48,8 +48,8 @@ jobs:
         run: |
           service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
           zip_name="${service_name}.zip"
-          echo "zip_name=${zip_name}" >> $GITHUB_ENV
-          zip -r "${{env.zip_name}}" build/
+          echo "zip_name=$zip_name" >> $GITHUB_ENV
+          zip -r "$zip_name" build/
           
       
       # Step 6: Compute the SHA256 of the tunnel-integration.zip
