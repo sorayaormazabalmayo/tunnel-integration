@@ -50,10 +50,10 @@ jobs:
           echo "Created and switched to branch $branch_name."
 
       # Step 5: Move index.json to the Targets Folder
-      - name: Move ${GITHUB_REPOSITORY}'s index file to its corresponding repository
+      - name: Move  index file to its corresponding repository
         run: |
           cd tuf-repo
-          echo "${GITHUB_REPOSITORY}"
+          # Get the name
           repo_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
           filename="${repo_name}-index.json"
           echo "File name: $filename"
@@ -67,7 +67,7 @@ jobs:
           mkdir -p "targets/$name"
           
           # Move the file to the new directory
-          mv "tuf-repo/updates-not-released-index/$filename" "tuf-repo/targets/$name"
+          mv "updates-not-released-index/$filename" "targets/$name"
 
           echo "Moved $filename to targets/$name folder."
 
