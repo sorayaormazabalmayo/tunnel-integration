@@ -197,8 +197,8 @@ jobs:
             --arg length "$length" \
             --arg sha256 "$sha256" \
             --arg version "$version" \
-            -- arg path "$path"
-            '.[$file] = {length: ($length | tonumber), path: ($path | tonumber), hashes: {sha256: $sha256}, version: $version}' "$index_name" > tmp.json && mv tmp.json "$index_name"
+            -- arg path "$path" \
+            '.[$file] = {length: ($length | tonumber), path: $path, hashes: {sha256: $sha256}, version: $version}' "$index_name" > tmp.json && mv tmp.json "$index_name"
 
           echo "Updated $index_name"
           cat "$index_name"
