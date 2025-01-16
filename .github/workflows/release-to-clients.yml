@@ -1,31 +1,80 @@
 name: 'Release Last Uploaded Binary of Google Artifact Registry to Clients'
 
 on: 
-    workflow_dispatch:
+  workflow_dispatch:  # Manually triggered for flexibility
 
 jobs:
-    get-last-uploaded-version-and-release-to-clients:
-        name: 'Get last uploaded version and release to clients'
-        runs-on: ubuntu-latest
-        permissions: 
-            contents: write
-            id-token: write
+  push-target-file:
+    name: 'Push Target File to TUF Repository'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Clone the Target Repository
+      - name: Clone Target Repository
         env:
-            TZ: Europe/Madrid
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TUF_REPO_URL: ${{ secrets.TUF_REPO_URL }}
+        run: |
+          echo "Cloning the TUF repository..."
+          git clone "$TUF_REPO_URL" tuf-repo
+          cd tuf-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-        steps:
-            # Step 1: Clone the source repository
-            - name: Checkout Repository
-              uses: actions/checkout@v3
 
-            # Step 2: Login to Google Cloud Registry
-            - name: Authenticate with Google Cloud
-              uses: google-github-actions/auth@v2
-              with:
-                token_format: access_token
-                workload_identity_provider: projects/185640679849/locations/global/workloadIdentityPools/github/providers/github-prov
-                service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
-                access_token_lifetime: '600s'
-            # Step 3: Getting the latest uploaded version of tunnel-integration
+      # Step 2: List all the -index.json files 
+      - name: List the index.json files
+        run: |
+          echo: "Listing the files in the TUF Repository"
+          # Step 2: List all the -index.json files 
+          find tuf-repo -type f -name '*-index.json'
 
+      # Step 2: Compute SHA256 hash of the file in the updates-not-released folder
+      - name: Get the Branch Name
+        id: compute-branch
+        run: |
+          date=$(date +'%Y.%m.%d-%H.%M.%S')
+          branch_name="sign/Updates-${date}"
+          echo "Branch name: $branch_name"
+
+          # Export the branch name for later steps
+          echo "::set-output name=branch::$branch_name"
+        shell: bash
+
+      # Step 3: Create and Checkout the Computed Branch
+      - name: Create and Checkout New Branch
+        run: |
+          cd tuf-repo
+          branch_name=${{ steps.compute-branch.outputs.branch }}
+          git checkout -b $branch_name
+          echo "Created and switched to branch $branch_name."
+
+      # Step 4: Move index.json to the Targets Folder
+      - name: Move $GITHUB_REPOSITORY's index file to its corresponding repository
+        run: |
+
+            filename="${GITHUB_REPOSITORY}-index.json"
+            echo "File name: $filename"
+
+            # Remove the '-index.json' suffix to get 'something'
+            name=$(echo "$filename" | sed 's/-index\.json$//')
+
+            echo "Moving $filename from updates-not-released-index to targets/$name..."
+            
+            # Create the target directory if it doesn't exist
+            mkdir -p "targets/$name"
+            
+            # Move the file to the new directory
+            mv "updates-not-released-index/$filename" "targets/$name"
+
+            echo "Moved $filename to targets/$name folder."
+        
+
+      # Step 5: Commit and Push Changes to the TUF Repository
+      - name: Commit and Push Changes
+        env:
+          GITHUB_TOKEN: ${{ secrets.TUF_REPO_PAT }}
+        run: |
+          cd tuf-repo
+          git add targets/
+          git commit -m "Move index.json from updates-not-released-index to targets/"
+          git push origin ${{ steps.compute-branch.outputs.branch }} 
