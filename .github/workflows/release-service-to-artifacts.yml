@@ -104,7 +104,7 @@ jobs:
           service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
           access_token_lifetime: '600s'
 
-      # Step 12: Upload the artifacts to Google Artifact Registry
+      # Step 11: Upload the artifacts to Google Artifact Registry
       - name: Pushing the .zip to Google Artifact Registry
         id: pushing-GAR
         run: |
@@ -123,8 +123,7 @@ jobs:
               --source="$file"
           done
 
-
-        # Step 13: Clone the target repository
+        # Step 12: Clone the target repository
       - name: Clone Target Repository
         run: |
           echo "Cloning target repository for index.json..."
@@ -137,48 +136,53 @@ jobs:
       # Step 13: Generate or Update index.json
       - name: Update index.json with new versions
         run: |
-          echo "Build outputs:"
-          ls -lh build/
+          released_artifact="tunnel-integration.zip"
 
-          for file in build/*; do
-            # Extract the filename
-            filename=$(basename "$file")
-            echo "The filename is: $file"
+          # Verify the artifact exists
+          if [ ! -f "$released_artifact" ]; then
+          echo "Error: Released artifact $released_artifact not found."
+          exit 1
+          fi
 
-            # Correct the index.json file path
-            index_name="tuf-repo/updates-not-released-index/${filename}-index.json"
-            echo "Index file: $index_name"
+          echo "Using released artifact: $released_artifact"
 
-            echo "Checking for existing index.json..."
-            if [ -f "$index_name" ]; then
-              echo "$index_name exists, loading it."
-            else
-              echo "$index_name does not exist, creating a new one."
-              echo '{}' > "$index_name"
-            fi
+          # Compute the length and sha256 of the released artifact
+          length=$(stat -c%s "$released_artifact")
+          sha256=$(sha256sum "$released_artifact" | awk '{print $1}')
 
-            echo "Processing $file..."
-            # Collect file details
-            length=$(stat -c%s "$file")
-            sha256=$(sha256sum "$file" | awk '{print $1}')
+          echo "Artifact Length: $length"
+          echo "Artifact SHA256: $sha256"
 
-            # Access the version output from the previous step
-            version="${{ steps.pushing-GAR.outputs.version }}"
+          # Extract the filename from the artifact
+          filename=$(basename "$file")
+          echo "The filename is: $file"
 
-            echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
+          # Correct the index.json file path
+          index_name="tuf-repo/updates-not-released-index/${filename}-index.json"
+          echo "Index file: $index_name"
 
-            # Update the JSON index file
-            jq --arg file "$filename" \
-              --arg length "$length" \
-              --arg sha256 "$sha256" \
-              --arg version "$version" \
-              '.[$file] = {length: ($length | tonumber), hashes: {sha256: $sha256}, version: $version}' "$index_name" > tmp.json && mv tmp.json "$index_name"
+          echo "Checking for existing index.json..."
+          if [ -f "$index_name" ]; then
+          echo "$index_name exists, loading it."
+          else
+          echo "$index_name does not exist, creating a new one."
+          echo '{}' > "$index_name"
+          fi
 
-            echo "Updated $index_name"
-            cat "$index_name"
-          done
+          # Access the version output from the previous step
+          version="${{ steps.pushing-GAR.outputs.version }}"
 
-          
+          echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
+
+          # Update the JSON index file
+          jq --arg file "$filename" \
+          --arg length "$length" \
+          --arg sha256 "$sha256" \
+          --arg version "$version" \
+          '.[$file] = {length: ($length | tonumber), hashes: {sha256: $sha256}, version: $version}' "$index_name" > tmp.json && mv tmp.json "$index_name"
+
+          echo "Updated $index_name"
+          cat "$index_name" 
 
       # Step 14: Commit and Push index.json to the Target Repository
       - name: Commit and Push index.json

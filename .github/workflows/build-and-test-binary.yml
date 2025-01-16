@@ -9,7 +9,7 @@ jobs:
 
   # Job 1: Build files
   build-files:
-    name: 'Build and Test Go Files'
+    name: 'Build Go Files'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -54,7 +54,7 @@ jobs:
 
   # Job 2: Test Built files
   test-build-files: 
-    name: Test built files 
+    name: Test Built Files 
     needs: build-files
     runs-on: ubuntu-latest
     steps: 
