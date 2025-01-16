@@ -73,11 +73,10 @@ jobs:
       # Step 6: Commit and Push Changes
       - name: Commit and Push Changes
         env:
-          TUF_REPO_URL: ${{ secrets.TUF_REPO_URL }}
+          GITHUB_TOKEN: ${{ secrets.TUF_REPO_PAT }}
         run: |
           cd tuf-repo
           git add targets/
           git commit -m "Move index.json from updates-not-released-index to targets/"
           git push "$TUF_REPO_URL" ${{ steps.compute-branch.outputs.branch }}
 
-          
