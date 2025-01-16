@@ -59,15 +59,21 @@ jobs:
           echo "Computing SHA256 checksum of the .zip"
           echo "digest=$(sha256sum ${zip_name}| awk '{ print $1 }')" >> $GITHUB_ENV
 
-      # Step 6: Generate calendar versioning
-      - name: Generate Calendar Versioning
-        id: calendar_version
-        run: |
-          tag="v$(date +'%Y.%m.%d')-${{ env.digest }}"
-          echo "tag=$tag" >> $GITHUB_ENV
-          echo "Generated tag: $tag"
+          - name: Generate Calendar Versioning
+          id: calendar_version
+          run: |
+            digest="example-digest" # Replace this with the actual digest logic
+            tag="v$(date +'%Y.%m.%d')-$digest"
+            echo "tag=$tag" >> $GITHUB_ENV
+            echo "Generated tag: $tag"
 
-      # Step 7: Verifying GitHub Token
+      # Step 7: Debug Generated Tag
+      
+      - name: Debug Generated Tag
+        run: |
+          echo "Tag is: ${{ env.tag }}"
+        
+      # Step 8: Verifying GitHub Token
       - name: Verify GITHUB_TOKEN
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
@@ -77,7 +83,7 @@ jobs:
               echo "GITHUB_TOKEN is available."
           fi
 
-      # Step 8: Create a release
+      # Step 9: Create a release
       - name: Create a GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -91,7 +97,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 9: Upload the build artifacts to the release
+      # Step 10: Upload the build artifacts to the release
       - name: Upload the build artifacts to the release
         uses: actions/upload-release-asset@v1
         with:
@@ -100,7 +106,7 @@ jobs:
           asset_name: ${zip_name}
           asset_content_type: application/zip
 
-      # Step 10: Login to Google Cloud Registry
+      # Step 11: Login to Google Cloud Registry
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with: 
@@ -109,7 +115,7 @@ jobs:
           service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
           access_token_lifetime: '600s'
 
-      # Step 11: Upload the artifacts to Google Artifact Registry
+      # Step 12: Upload the artifacts to Google Artifact Registry
       - name: Pushing the .zip to Google Artifact Registry
         id: pushing-GAR
         run: |
@@ -135,7 +141,7 @@ jobs:
           echo "Successfully uploaded $file to Google Artifact Registry"
       
 
-        # Step 12: Clone the target repository
+        # Step 13: Clone the target repository
       - name: Clone Target Repository
         run: |
           echo "Cloning target repository for index.json..."
@@ -145,7 +151,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           mkdir -p updates-not-released-index
 
-      # Step 13: Generate or Update index.json
+      # Step 14: Generate or Update index.json
       - name: Update index.json with new versions
         run: |
           released_artifact=${zip_name}
