@@ -130,7 +130,7 @@ jobs:
           version=${{ env.tag }}
 
           # Push the artifact to Google Artifact Registry
-          gcloud artifacts packages upload "$service_name" \
+          gcloud artifacts generic upload "$service_name" \
             --repository=nebula-storage \
             --location=europe-southwest1 \
             --project=polished-medium-445107-i9 \
