@@ -47,9 +47,10 @@ jobs:
           echo "Created and switched to branch $branch_name."
 
       # Step 4: Move index.json to the Targets Folder
-      - name: Move $GITHUB_REPOSITORY's index file to its corresponding repository
+      - name: Move ${GITHUB_REPOSITORY}'s index file to its corresponding repository
         run: |
 
+            echo: "${GITHUB_REPOSITORY}"
             filename="${GITHUB_REPOSITORY}-index.json"
             echo "File name: $filename"
 
