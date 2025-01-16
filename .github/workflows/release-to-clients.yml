@@ -51,7 +51,8 @@ jobs:
         run: |
 
             echo "${GITHUB_REPOSITORY}"
-            filename="${GITHUB_REPOSITORY}-index.json"
+            repo_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+            filename="${repo_name}-index.json"
             echo "File name: $filename"
 
             # Remove the '-index.json' suffix to get 'something'
