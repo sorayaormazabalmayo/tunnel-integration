@@ -110,20 +110,27 @@ jobs:
       - name: Pushing the .zip to Google Artifact Registry
         id: pushing-GAR
         run: |
-          echo "Uploading the artifacts in build/ to Google Artifact Registry..."
+          echo "Uploading the released artifact from GitHub to Google Artifact Registry..."
+          # Ensure `service_name` and `zip_name` are correctly set
+          service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+          file=${{ env.zip_name }}
+          
+          echo "Processing artifact file: $file for service: $service_name"
+
+          # Retrieve the version from the release tag
           version=${{ env.tag }}
-          for file in build/*; do
-            filename=$(basename "$file")
-            echo "Processing $file... inside package $filename"
-            echo "Uploading $file with version $version..."
-            gcloud artifacts generic upload \
-              --repository=nebula-storage \
-              --location=europe-southwest1 \
-              --project=polished-medium-445107-i9 \
-              --package=${service_name} \
-              --version="$version" \
-              --source="$file"
-          done
+
+          # Push the artifact to Google Artifact Registry
+          gcloud artifacts packages upload "$service_name" \
+            --repository=nebula-storage \
+            --location=europe-southwest1 \
+            --project=polished-medium-445107-i9 \
+            --package="$service_name" \
+            --version="$version" \
+            --source="$file"
+
+          echo "Successfully uploaded $file to Google Artifact Registry"
+      
 
         # Step 12: Clone the target repository
       - name: Clone Target Repository
@@ -170,6 +177,9 @@ jobs:
 
           # Access the version output from the previous step
           version="${{ env.tag }}"
+
+          # Path in which the .zip is stored in the Google Artifact Registry
+          path=https://artifactregistry.googleapis.com/download/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${service_name}:${version}:${zip_name}:download?alt=media
 
           echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
 
