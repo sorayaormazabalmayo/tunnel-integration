@@ -158,7 +158,8 @@ jobs:
           echo "The filename is: $filename"
 
           # Correct the index.json file path
-          index_name="tuf-repo/updates-not-released-index/${filename}-index.json"
+          basename="${filename%.zip}"
+          index_name="tuf-repo/updates-not-released-index/${basename}-index.json"
           echo "Index file: $index_name"
 
           echo "Checking for existing index.json..."
