@@ -106,7 +106,7 @@ jobs:
           echo "Artifact SHA256: $sha256"
 
           # Extract the filename from the artifact
-          filename=$(echo "${FILES}" | cut -d':' -f3)
+          filename=$(echo "${FILES}" | cut -d ':' -f3)
           echo "The filename is: $filename
 
           # Basename of the compressed file
