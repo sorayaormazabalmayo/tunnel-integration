@@ -106,7 +106,7 @@ jobs:
           echo "Artifact SHA256: $sha256"
 
           # Contructing the index name
-          index_name =$(echo "${SERVICE_NAME}-index.json")
+          index_name=$(echo "${SERVICE_NAME}-index.json")
       
           # Overwrite or create a new index.json file with an empty JSON object
           echo "Resetting $index_name to an empty JSON object..."
