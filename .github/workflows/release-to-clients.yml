@@ -26,6 +26,7 @@ jobs:
       - name: Reading the last uploaded release to Google Artifact Registry
         run: |
           service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+          echo "SERVICE_NAME=$service_name">>$GITHUB_ENV
           echo "Getting the last released version to Google Artifact Registry"
           VERSION=$(gcloud artifacts versions list \
             --location=europe-southwest1 \
