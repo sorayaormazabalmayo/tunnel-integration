@@ -42,6 +42,8 @@ jobs:
           # From the version, the SHA256 can be obtained
           sha256=$(echo "${VERSION}" | cut -d '-' -f2)
 
+          echo "The sha256 is $sha256"
+
           echo "SHA256 =$sha256">>$GITHUB_ENV
       
       # Step 3: Reading the files that are inside the latest uploaded version
