@@ -63,7 +63,7 @@ jobs:
             --location=europe-southwest1 \
             --project=polished-medium-445107-i9 \
             --repository=nebula-storage \
-            --package=$service_name \
+            --package=$SERVICE_NAME \
             --version=$VERSION \
             --format="csv[no-heading](name,sizeBytes)")
           
