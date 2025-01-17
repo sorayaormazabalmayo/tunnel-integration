@@ -105,6 +105,8 @@ jobs:
           echo "Artifact Length: $length"
           echo "Artifact SHA256: $sha256"
 
+          echo "The complete file location is: $FILES"
+
           # Extract the filename from the artifact
           filename=$(echo "${FILES}" | cut -d ':' -f3)
           echo "The filename is: $filename
