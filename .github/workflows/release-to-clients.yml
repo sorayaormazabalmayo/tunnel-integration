@@ -93,7 +93,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      # Step 6: Create or Update index.json in the Targets Folder
+      # Step 6: Create a New Branch
+      - name: Create and Checkout a New Branch
+        id: create_branch
+        run: |
+          cd tuf-repo
+          date=$(date +'%Y.%m.%d-%H.%M.%S')
+          branch_name="sign/Updates-${date}"
+          git checkout -b $branch_name
+          echo "Created and checked out branch $branch_name"
+          echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
+
+      # Step 7: Create or Update index.json in the Targets Folder
       - name: Create or Update index.json in the Targets Folder
         run: |
           cd tuf-repo
@@ -131,7 +142,7 @@ jobs:
 
           echo "Updated or created $index_path"
 
-      # Step 7: Commit and Push Changes
+      # Step 8: Commit and Push Changes to the New Branch
       - name: Commit and Push Changes
         env:
             TUF_REPO_PAT: ${{ secrets.TUF_REPO_PAT }}
@@ -139,4 +150,4 @@ jobs:
             cd tuf-repo
             git add targets/
             git commit -m "Create or update index.json in the targets/$SERVICE_NAME folder"
-            git push https://x-access-token:${TUF_REPO_PAT}@github.com/sorayaormazabalmayo/TUF_Repository_Yubikey_Vault.git ${{ steps.compute-branch.outputs.branch }}
+            git push https://x-access-token:${TUF_REPO_PAT}@github.com/sorayaormazabalmayo/TUF_Repository_Yubikey_Vault.git ${{ env.BRANCH_NAME }}
