@@ -138,7 +138,7 @@ jobs:
             --arg sha256 "$SHA256" \
             --arg version "$VERSION" \
             --arg path "https://artifactregistry.googleapis.com/download/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${SERVICE_NAME}:${VERSION}:${SERVICE_NAME}.zip:download?alt=media" \
-            '.[$file] = {bytes: ($bytes | tonumber), path: $path, hashes: {sha256: $sha256}, version: $version}' "$index_path" > tmp.json && mv tmp.json "$index_path"
+            '.[$file] = {bytes: $bytes, path: $path, hashes: {sha256: $sha256}, version: $version}' "$index_path" > tmp.json && mv tmp.json "$index_path"
 
           echo "Updated or created $index_path"
 
