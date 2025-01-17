@@ -82,7 +82,7 @@ jobs:
           echo "Total size of files: $TOTAL_SIZE bytes"
           echo "TOTAL_SIZE=$TOTAL_SIZE" >> $GITHUB_ENV
 
-      # Step 4: Clone the Target Repository
+      # Step 5: Clone the Target Repository
       - name: Clone Target Repository
         env:
           TUF_REPO_URL: ${{ secrets.TUF_REPO_URL }}
@@ -93,68 +93,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-
-      # Step 5: Generate or Update index.json
-      - name: Generate the new service's index.json
-        run: |
-
-          # Extracting the length and the sha256
-          length=$TOTAL_SIZE
-          sha256=$SHA256
-
-          echo "Artifact Length: $length"
-          echo "Artifact SHA256: $sha256"
-
-          # Contructing the index name
-          index_name=$(echo "${SERVICE_NAME}-index.json")
-      
-          # Overwrite or create a new index.json file with an empty JSON object
-          echo "Resetting $index_name to an empty JSON object..."
-          echo '{}' > "$index_name"
-
-          # Access the version output from the previous step
-          version=$VERSION
-
-          # Path in which the .zip is stored in the Google Artifact Registry
-          path="https://artifactregistry.googleapis.com/download/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${SERVICE_NAME}:${version}:${SERVICE_NAME}.zip:download?alt=media"
-
-          echo "File: $filename, Length: $length, SHA256: $sha256, Version: $version"
-
-          # Update the JSON index file
-          jq --arg file "$SERVICE_NAME" \
-            --arg length "$length" \
-            --arg sha256 "$sha256" \
-            --arg version "$version" \
-            --arg path "$path" \
-            '.[$file] = {length: ($length | tonumber), path: $path, hashes: {sha256: $sha256}, version: $version}' "$index_name" > tmp.json && mv tmp.json "$index_name"
-
-          echo "Updated $index_name"
-          cat "$index_name"
-
-      # Step 6: Compute SHA256 hash of the file in the updates-not-released folder
-      - name: Get the Branch Name
-        id: compute-branch
-        run: |
-          date=$(date +'%Y.%m.%d-%H.%M.%S')
-          branch_name="sign/Updates-${date}"
-          echo "Branch name: $branch_name"
-
-          # Export the branch name for later steps
-          echo "::set-output name=branch::$branch_name"
-        shell: bash
-
-      # Step 7: Create and Checkout the Computed Branch
-      - name: Create and Checkout New Branch
+      # Step 6: Create or Update index.json in the Targets Folder
+      - name: Create or Update index.json in the Targets Folder
         run: |
           cd tuf-repo
-          branch_name=${{ steps.compute-branch.outputs.branch }}
-          git checkout -b $branch_name
-          echo "Created and switched to branch $branch_name."
 
-      # Step 8: Move index.json to the Targets Folder
-      - name: Move index file to its corresponding repository
-        run: |
-          cd tuf-repo
           # Construct the filename and target folder
           repo_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
           filename="${repo_name}-index.json"
@@ -167,18 +110,33 @@ jobs:
           # Ensure the target folder exists
           mkdir -p "$target_folder"
 
-          # Move the index file to the target folder
-          mv "$filename" "$target_folder/$filename"
-          echo "Moved $filename to $target_folder/$filename"
+          # Full path to the index.json file
+          index_path="$target_folder/$filename"
 
+          # Check if the index.json file exists
+          if [[ -f "$index_path" ]]; then
+            echo "$index_path exists. Updating the content."
+          else
+            echo "$index_path does not exist. Creating a new file."
+            echo '{}' > "$index_path"  # Create a new empty JSON file if it doesn't exist
+          fi
 
-      # Step 9: Commit and Push Changes
+          # Update the index.json file using jq
+          jq --arg file "$SERVICE_NAME" \
+            --arg length "$TOTAL_SIZE" \
+            --arg sha256 "$SHA256" \
+            --arg version "$VERSION" \
+            --arg path "https://artifactregistry.googleapis.com/download/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${SERVICE_NAME}:${VERSION}:${SERVICE_NAME}.zip:download?alt=media" \
+            '.[$file] = {length: ($length | tonumber), path: $path, hashes: {sha256: $sha256}, version: $version}' "$index_path" > tmp.json && mv tmp.json "$index_path"
+
+          echo "Updated or created $index_path"
+
+      # Step 7: Commit and Push Changes
       - name: Commit and Push Changes
         env:
             TUF_REPO_PAT: ${{ secrets.TUF_REPO_PAT }}
         run: |
             cd tuf-repo
             git add targets/
-            git commit -m "Move index.json from updates-not-released-index to targets/"
+            git commit -m "Create or update index.json in the targets/$SERVICE_NAME folder"
             git push https://x-access-token:${TUF_REPO_PAT}@github.com/sorayaormazabalmayo/TUF_Repository_Yubikey_Vault.git ${{ steps.compute-branch.outputs.branch }}
-
