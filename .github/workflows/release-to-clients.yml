@@ -44,7 +44,7 @@ jobs:
 
           echo "The sha256 is $sha256"
 
-          echo "SHA256 =$sha256">>$GITHUB_ENV
+          echo "SHA256=$sha256">>$GITHUB_ENV
       
       # Step 3: Reading the files that are inside the latest uploaded version
       - name: Reading the files that are inside this uploaded last version
