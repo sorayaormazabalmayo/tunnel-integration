@@ -38,6 +38,11 @@ jobs:
             --format="value(VERSION)")
           echo "Latest version is $VERSION"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+          # From the version, the SHA256 can be obtained
+          sha256=$(echo "${VERSION}" | cut -d '-' -f2)
+
+          echo "SHA256 =$sha256">>$GITHUB_ENV
       
       # Step 3: Reading the files that are inside the latest uploaded version
       - name: Reading the files that are inside this uploaded last version
@@ -87,42 +92,30 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
 
-      # Step 4: Generate or Update index.json
+      # Step 5: Generate or Update index.json
       - name: Generate the new service's index.json
         run: |
-        
-          service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
-          
-          # Verify the artifact exists
-          if [ ! -f "$released_artifact" ]; then
-            echo "Error: Released artifact $released_artifact not found."
-            exit 1
-          fi
-
-          echo "Using released artifact: $released_artifact"
 
           # Compute the length and sha256 of the released artifact
-          length=$(stat -c%s "$released_artifact")
-          sha256=$(sha256sum "$released_artifact" | awk '{print $1}')
+          length=$TOTAL_SIZE
+          sha256=$sha256
 
           echo "Artifact Length: $length"
           echo "Artifact SHA256: $sha256"
 
           # Extract the filename from the artifact
-          filename=$released_artifact
-          echo "The filename is: $filename"
+          filename=$(echo "${FILES}" | cut -d':' -f3)
+          echo "The filename is: $filename
 
-          # Correct the index.json file path
+          # Basename of the compressed file
           basename="${filename%.zip}"
-          index_name="tuf-repo/updates-not-released-index/${basename}-index.json"
-          echo "Index file: $index_name"
-
+      
           # Overwrite or create a new index.json file with an empty JSON object
           echo "Resetting $index_name to an empty JSON object..."
           echo '{}' > "$index_name"
 
           # Access the version output from the previous step
-          version="${{ env.tag }}"
+          version=$VERSION
 
           # Path in which the .zip is stored in the Google Artifact Registry
           path="https://artifactregistry.googleapis.com/download/v1/projects/polished-medium-445107-i9/locations/europe-southwest1/repositories/nebula-storage/files/${service_name}:${version}:${zip_name}:download?alt=media"
