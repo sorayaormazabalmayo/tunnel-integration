@@ -58,6 +58,6 @@ jobs:
     needs: build-files
     runs-on: ubuntu-latest
     steps: 
-      - name: Simulating that some testings are done
+      - name: Simulating that some testings and checks are done
         run: |
-          echo "Simulating that some testings are done"
+          echo "Simulating that some testings and checks are done"

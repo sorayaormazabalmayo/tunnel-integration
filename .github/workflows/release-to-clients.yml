@@ -4,8 +4,8 @@ on:
   workflow_dispatch:  # Manually triggered for flexibility
 
 jobs:
-  push-target-file:
-    name: 'Push Target File to TUF Repository'
+  release-to-clients:
+    name: 'Releasing the last Google Artifact to Clients (TUF_Repository)'
     runs-on: ubuntu-latest
     permissions:
       contents: write

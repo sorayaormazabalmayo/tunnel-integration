@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-release:
+  # Job 1: Build and release to Google Artifacts
+  build-and-release-to-Google-Artifacts:
     name: 'Build, Test and Release'
     runs-on: ubuntu-latest
     permissions:
@@ -43,7 +44,12 @@ jobs:
           echo "Build outputs:"
           ls -lh build/
 
-      # Step 5: Compress Build Artifacts
+      # Step 5: Simulating that some testing are done 
+      - name: Simulating that some testings and checks are done
+        run: |
+          echo "Simulating that some testings and checks are done"
+
+      # Step 6: Compress Build Artifacts
       - name: Compress Build Artifacts
         run: |
           service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
@@ -51,7 +57,7 @@ jobs:
           echo "zip_name=$zip_name" >> $GITHUB_ENV
           zip -r "$zip_name" build/
           
-      # Step 6: Compute the SHA256
+      # Step 7: Compute the SHA256
       - name: Compute the SHA256 of the .zip
         run: |
           echo "Computing SHA256 checksum of the .zip"
@@ -59,7 +65,7 @@ jobs:
           echo "digest=$digest" >> $GITHUB_ENV
           echo "SHA256 checksum is: $digest"
 
-      # Step 7: Generate Calendar Versioning
+      # Step 8: Generate Calendar Versioning
       - name: Generate Calendar Versioning
         id: calendar_version
         run: |
@@ -67,13 +73,13 @@ jobs:
           echo "tag=$tag" >> $GITHUB_ENV
           echo "Generated tag: $tag"
 
-      # Step 8: Debug Generated Tag
+      # Step 9: Debug Generated Tag
       
       - name: Debug Generated Tag
         run: |
           echo "Tag is: ${{ env.tag }}"
         
-      # Step 9: Verifying GitHub Token
+      # Step 10: Verifying GitHub Token
       - name: Verify GITHUB_TOKEN
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
@@ -83,7 +89,7 @@ jobs:
               echo "GITHUB_TOKEN is available."
           fi
 
-      # Step 10: Create a release
+      # Step 11: Create a release
       - name: Create a GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -97,7 +103,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 11: Upload the build artifacts to the release
+      # Step 12: Upload the build artifacts to the release
       - name: Upload the build artifacts to the release
         uses: actions/upload-release-asset@v1
         with:
@@ -106,7 +112,7 @@ jobs:
           asset_name: ${{ env.zip_name }}
           asset_content_type: application/zip
 
-      # Step 12: Login to Google Cloud Registry
+      # Step 13: Login to Google Cloud Registry
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with: 
@@ -115,7 +121,7 @@ jobs:
           service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
           access_token_lifetime: '600s'
 
-      # Step 13: Upload the artifacts to Google Artifact Registry
+      # Step 14: Upload the artifacts to Google Artifact Registry
       - name: Pushing the .zip to Google Artifact Registry
         id: pushing-GAR
         run: |
