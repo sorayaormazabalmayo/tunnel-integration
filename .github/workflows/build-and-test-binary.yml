@@ -1,4 +1,4 @@
-name: 'Sanity checks before merging PR to main'
+name: 'Sanity checks before merging PR'
 
 on:
   pull_request:
