@@ -8,8 +8,8 @@ on:
 
 jobs:
 
-  # Job 1: Build files
-  build-files:
+  # Job 1: Build the files before sanity checks and before merging to main
+  build-files-before-sanity-checks-and-merging:
     name: 'Build Go Files'
     runs-on: ubuntu-latest
     permissions:
@@ -53,8 +53,8 @@ jobs:
           echo "Build outputs:"
           ls -lh build/
 
-  # Job 2: Test Built files
-  test-build-files: 
+  # Job 2: Simulating sanity checks to the build files before merging
+  sanity-checks-to-the-built-files-before-merging: 
     name: Sanity Checks Before Merging 
     needs: build-files
     runs-on: ubuntu-latest

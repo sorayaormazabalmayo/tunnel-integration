@@ -2,11 +2,14 @@ name: 'Build, Test, and Release Updates to Google Artifact Registry'
 
 on:
   workflow_dispatch:
+  push: 
+    tags: 
+      - '*' # Workflow is trigered when a push is made with a tag
 
 jobs:
-  # Job 1: Build and release to Google Artifacts
-  build-and-release-to-Google-Artifacts:
-    name: 'Build, Test and Release'
+  # Job 1: Check that the release version is correct
+  well-tag-triggered-job:
+    name: 'Check Release Version'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -19,6 +22,13 @@ jobs:
       # Step 1: Clone the source repository
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      # Step 2: Display tag information
+      - name: Get Tag Details
+        run: |
+          echo "Tag Name: ${{ github.ref_name }}"
+          echo "Full Reference: ${{ github.ref }}"
+          echo "Event: ${{ github.event_name }}"
 
       # Step 2: Install Go
       - name: Setting up Golang
