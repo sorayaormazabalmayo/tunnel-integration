@@ -1,9 +1,9 @@
-name: 'Test Updates'
+name: 'Sanity checks before merging PR'
 
 on:
-  push:
-    paths: 
-      - '**/*.go'  # Trigger when Go files in the source-code directory change.
+  pull_request:
+    branches:
+      - main
 
 jobs:
 
