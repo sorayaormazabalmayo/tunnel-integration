@@ -54,7 +54,7 @@ jobs:
 
   # Job 2: Test Built files
   test-build-files: 
-    name: Test Built Files 
+    name: Sanity Checks to the Built Files
     needs: build-files
     runs-on: ubuntu-latest
     steps: 
