@@ -1,6 +1,7 @@
 name: 'Sanity checks before merging PR'
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - main
