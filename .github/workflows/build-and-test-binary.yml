@@ -1,4 +1,4 @@
-name: 'Build and Test Updates'
+name: 'Test Updates'
 
 on:
   push:
