@@ -169,14 +169,21 @@ jobs:
           UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
         run: |
           echo "Uploading individual build artifacts..."
+          
           for file in build/*; do
-            echo "Uploading $file"
-            asset_name=$(basename "$file")
+            if [[ -f "$file" ]]; then  # ✅ Check if it's a file (not a directory)
+              echo "Uploading $file"
+              asset_name=$(basename "$file")
 
-            curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Content-Type: application/octet-stream" \
-              --data-binary @"$file" \
-              "${UPLOAD_URL}?name=$asset_name"
+              curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Content-Type: application/octet-stream" \
+                --data-binary @"$file" \
+                "${UPLOAD_URL}?name=$asset_name"
+
+              echo "Uploaded $file successfully!"
+            else
+              echo "Skipping non-file: $file"
+            fi
           done
           
       # Step 10: Login to Google Cloud Registry
