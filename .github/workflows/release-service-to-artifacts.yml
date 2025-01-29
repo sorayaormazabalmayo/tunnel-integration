@@ -64,11 +64,21 @@ jobs:
           echo "Simulating that some testings and checks are done"
 
           
-      # Step 6: Compute the SHA256
-      - name: Compute the SHA256 of the .zip
+      # Step 6: Create a ZIP archive of the built artifacts
+      - name: Create a ZIP of the built artifacts
         run: |
-          echo "Computing SHA256 checksum of the .zip"
-          digest=$(sha256sum "${{env.outputname}}" | awk '{ print $1 }')
+          echo "Creating ZIP file of the build directory..."
+          zip -r build_artifacts.zip build/
+          echo "ZIP file created: build_artifacts.zip"
+          
+          # Store ZIP file name in an environment variable
+          echo "output_name=build_artifacts.zip" >> $GITHUB_ENV
+
+      # Step 7: Compute the SHA256 of the ZIP file
+      - name: Compute the SHA256 of the ZIP file
+        run: |
+          echo "Computing SHA256 checksum of the ZIP file..."
+          digest=$(sha256sum "${{ env.output_name }}" | awk '{ print $1 }')
           echo "digest=$digest" >> $GITHUB_ENV
           echo "SHA256 checksum is: $digest"
 
