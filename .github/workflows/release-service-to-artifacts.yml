@@ -88,19 +88,23 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps: 
 
-      # Step 1: Install Go
+      # Step 1: Clone the source repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Install Go
       - name: Setting up Golang
         uses: actions/setup-go@v4
         with:
           go-version: '1.21'
 
-      # Step 2: List all Go files in the directory
+      # Step 3: List all Go files in the directory
       - name: List All Go Files
         run: |
           echo "Listing all Go files in the directory:"
           find . -type f -name "*.go"
 
-      # Step 3: Build all Go files
+      # Step 4: Build all Go files
       - name: Build All Go Files
         id: build_step
         run: |
@@ -112,14 +116,14 @@ jobs:
             go build -o "build/$output_name" "$file"
           done
 
-      # Step 4: Simulating that some testing are done 
+      # Step 5: Simulating that some testing are done 
       - name: Simulating that some testings and checks are done
         run: |
           # Getting the tag name
           echo "tag=${{github.ref_name}}">>$GITHUB_ENV
           echo "Simulating that some testings and checks are done"
           
-      # Step 5: Create a ZIP archive of the built artifacts
+      # Step 6: Create a ZIP archive of the built artifacts
       - name: Create a ZIP of the built artifacts
         run: |
           echo "Creating ZIP file of the build directory..."
@@ -129,7 +133,7 @@ jobs:
           # Store ZIP file name in an environment variable
           echo "output_name=build_artifacts.zip" >> $GITHUB_ENV
 
-      # Step 6: Compute the SHA256 of the ZIP file
+      # Step 7: Compute the SHA256 of the ZIP file
       - name: Compute the SHA256 of the ZIP file
         run: |
           echo "Computing SHA256 checksum of the ZIP file..."
@@ -138,7 +142,7 @@ jobs:
           echo "SHA256 checksum is: $digest"
 
         
-      # Step 7: Verifying GitHub Token
+      # Step 8: Verifying GitHub Token
       - name: Verify GITHUB_TOKEN
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
@@ -148,7 +152,7 @@ jobs:
               echo "GITHUB_TOKEN is available."
           fi
 
-      # Step 8: Create a release
+      # Step 9: Create a release
       - name: Create a GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -162,7 +166,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 9: Upload each built artifact to the release
+      # Step 10: Upload each built artifact to the release
       - name: Upload build artifacts to the release
         env:
           UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
@@ -185,7 +189,7 @@ jobs:
             fi
           done
           
-      # Step 10: Login to Google Cloud Registry
+      # Step 11: Login to Google Cloud Registry
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with: 
@@ -194,7 +198,7 @@ jobs:
           service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
           access_token_lifetime: '600s'
 
-      # Step 11: Upload each built artifact to Google Artifact Registry
+      # Step 12: Upload each built artifact to Google Artifact Registry
       - name: Upload build artifacts to Google Artifact Registry
         id: pushing-GAR
         run: |
