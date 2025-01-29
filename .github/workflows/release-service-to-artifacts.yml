@@ -128,7 +128,13 @@ jobs:
         run: |
           echo "Uploading each built artifact to Google Artifact Registry..."
           service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
-          version=${{env.tag}}
+          
+          # Correcting the version format by replacing "+" with "-"
+          version="${{ env.TAG }}"
+          version_fixed=$(echo "$version" | tr '+' '-')
+
+          echo "Original version: $version"
+          echo "Modified version: $version_fixed"
 
           for file in build/*; do
             artifact_name=$(basename "$file")
@@ -139,11 +145,13 @@ jobs:
               --location=europe-southwest1 \
               --project=polished-medium-445107-i9 \
               --package="$service_name-$artifact_name" \
-              --version="$version" \
+              --version="$version_fixed" \
               --source="$file"
 
             echo "Uploaded $artifact_name to Google Artifact Registry"
           done
-          echo "Successfully uploaded $file to Google Artifact Registry"
+
+          echo "Successfully uploaded all artifacts to Google Artifact Registry"
+    
 
 
