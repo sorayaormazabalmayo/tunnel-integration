@@ -144,7 +144,7 @@ jobs:
               --repository=nebula-storage \
               --location=europe-southwest1 \
               --project=polished-medium-445107-i9 \
-              --package="$service_name \
+              --package="$service_name" \
               --version="$version_fixed" \
               --source="$file"
 
