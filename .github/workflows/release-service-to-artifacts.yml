@@ -94,7 +94,13 @@ jobs:
         with:
           go-version: '1.21'
 
-      # Step 2: Build all Go filess
+      # Step 2: List all Go files in the directory
+      - name: List All Go Files
+        run: |
+          echo "Listing all Go files in the directory:"
+          find . -type f -name "*.go"
+
+      # Step 3: Build all Go files
       - name: Build All Go Files
         id: build_step
         run: |
@@ -103,15 +109,8 @@ jobs:
           find . -type f -name "*.go" | while read -r file; do
             echo "Building $file..."
             output_name=$(basename "$file" .go)
-            go build -o "build/$output_name" "$file"
-          done
-
-      # Step 3: Show Build Results
-      - name: List Build Output
-        run: |
-          echo "Build outputs:"
-          ls -lh build/
-
+            go build 
+            
       # Step 4: Simulating that some testing are done 
       - name: Simulating that some testings and checks are done
         run: |
