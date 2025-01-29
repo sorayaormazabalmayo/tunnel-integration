@@ -34,11 +34,11 @@ jobs:
           echo "tag=${{github.ref_name}}">>$GITHUB_ENV
           echo "The Tag name is ${{env.tag}}"
 
-      # Step 3: Validate the tag format
+      # Step 3: Validate the Tag Format (Date and Commit SHA)
       - name: Validate the Tag Format (Date and Commit SHA)
         run: |
-          # Extracting the current date in YYYY-MM-DD format
-          current_date=$(date -u +"%Y-%m-%d")
+          # Extracting the current date in YYYY.MM.DD format
+          current_date=$(date -u +"%Y.%m.%d")  # ✅ Fixed date format
           echo "Current Date: $current_date"
 
           # Extract commit hash of HEAD
@@ -46,11 +46,11 @@ jobs:
           echo "Current Commit Hash: $commit_hash"
 
           # Extract date and commit from the tag
-          tag="${{env.tag}}"
+          tag="${{ env.tag }}"  # ✅ Ensure env variable reference is correct
           echo "Validating Tag: $tag"
 
-          # Regex to check tag format: vYYYY-MM-DD+sha:abcdefg
-          if [[ "$tag" =~ ^v([0-9]{4}.[0-9]{2}.[0-9]{2})\+sha:([a-f0-9]+)$ ]]; then
+          # ✅ Regex to check tag format: vYYYY.MM.DD+sha:abcdefg
+          if [[ "$tag" =~ ^v([0-9]{4}\.[0-9]{2}\.[0-9]{2})\+sha:([a-f0-9]+)$ ]]; then
             tag_date="${BASH_REMATCH[1]}"
             tag_commit="${BASH_REMATCH[2]}"
 
@@ -71,7 +71,7 @@ jobs:
 
             echo "✅ Tag validation successful!"
           else
-            echo "❌ ERROR: Tag format is incorrect! Expected format: vYYYY-MM-DD+sha:abcdefg"
+            echo "❌ ERROR: Tag format is incorrect! Expected format: vYYYY.MM.DD+sha:abcdefg"
             exit 1
           fi
 
