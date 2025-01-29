@@ -68,7 +68,7 @@ jobs:
       - name: Compute the SHA256 of the .zip
         run: |
           echo "Computing SHA256 checksum of the .zip"
-          digest=$(sha256sum "${{ env.zip_name }}" | awk '{ print $1 }')
+          digest=$(sha256sum "${{env.outputname}}" | awk '{ print $1 }')
           echo "digest=$digest" >> $GITHUB_ENV
           echo "SHA256 checksum is: $digest"
 
