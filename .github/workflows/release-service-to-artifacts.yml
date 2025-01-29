@@ -129,13 +129,17 @@ jobs:
       #     # Store ZIP file name in an environment variable
       #     echo "output_name=build_artifacts.zip" >> $GITHUB_ENV
 
+
+      
       # Step 7: Compute the SHA256 of the ZIP file
-      # - name: Compute the SHA256 of the ZIP file
-      #   run: |
-      #     echo "Computing SHA256 checksum of the ZIP file..."
-      #     digest=$(sha256sum "${{ env.output_name }}" | awk '{ print $1 }')
-      #     echo "digest=$digest" >> $GITHUB_ENV
-      #     echo "SHA256 checksum is: $digest"
+      - name: Compute the SHA256 of the ZIP file
+        run: |
+          echo "Computing SHA256 checksum of the ZIP file..."
+          binary_name=$(basename $(go list -m))  # Get the module name as the default binary name
+          digest=$(sha256sum "$binary_name")
+          
+          # Print the digest to console
+          echo "SHA256 checksum of $binary_name: $digest"
 
         
       # Step 8: Verifying GitHub Token
