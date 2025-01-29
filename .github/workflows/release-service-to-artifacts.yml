@@ -130,7 +130,7 @@ jobs:
           service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
           
           # Correcting the version format by replacing "+" with "-"
-          version="${{ env.TAG }}"
+          version="${{env.tag}}"
           version_fixed=$(echo "$version" | tr '+' '-')
 
           echo "Original version: $version"
