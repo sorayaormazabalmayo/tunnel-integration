@@ -49,15 +49,15 @@ jobs:
           tag="${{ env.tag }}"  # ✅ Ensure env variable reference is correct
           echo "Validating Tag: $tag"
 
-          # ✅ Regex to check tag format: vYYYY.MM.DD+sha:abcdefg
-          if [[ "$tag" =~ ^v([0-9]{4}\.[0-9]{2}\.[0-9]{2})\+sha:([a-f0-9]+)$ ]]; then
+          # ✅ Regex to check tag format: vYYYY.MM.DD+shaabcdefg
+          if [[ "$tag" =~ ^v([0-9]{4}\.[0-9]{2}\.[0-9]{2})\+sha([a-f0-9]+)$ ]]; then
             tag_date="${BASH_REMATCH[1]}"
             tag_commit="${BASH_REMATCH[2]}"
 
             echo "Extracted Tag Date: $tag_date"
             echo "Extracted Tag Commit Hash: $tag_commit"
 
-            # Compare extracted date with current date
+            # Compare extracted date with current :
             if [[ "$tag_date" != "$current_date" ]]; then
               echo "❌ ERROR: Tag date ($tag_date) does not match today's date ($current_date)!"
               exit 1
@@ -71,7 +71,7 @@ jobs:
 
             echo "✅ Tag validation successful!"
           else
-            echo "❌ ERROR: Tag format is incorrect! Expected format: vYYYY.MM.DD+sha:abcdefg"
+            echo "❌ ERROR: Tag format is incorrect! Expected format: vYYYY.MM.DD+shaabcdefg"
             exit 1
           fi
 
