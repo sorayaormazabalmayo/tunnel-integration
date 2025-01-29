@@ -56,7 +56,7 @@ jobs:
   # Job 2: Simulating sanity checks to the build files before merging
   sanity-checks-to-the-built-files-before-merging: 
     name: Sanity Checks Before Merging 
-    needs: build-files
+    needs: build-files-before-sanity-checks-and-merging
     runs-on: ubuntu-latest
     steps: 
       - name: Simulating that some testings and checks are done
