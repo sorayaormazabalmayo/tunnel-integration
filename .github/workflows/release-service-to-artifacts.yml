@@ -9,7 +9,7 @@ on:
 jobs:
   # Job 1: Check that the release version is correct
   well-tag-triggered-job:
-    name: 'Check Release Version'
+    name: 'Check tag'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -34,13 +34,67 @@ jobs:
           echo "tag=${{github.ref_name}}">>$GITHUB_ENV
           echo "The Tag name is ${{env.tag}}"
 
-      # Step 2: Install Go
+      # Step 3: Validate the tag format
+      - name: Validate the Tag Format (Date and Commit SHA)
+        run: |
+          # Extracting the current date in YYYY-MM-DD format
+          current_date= $(date -u +"%Y-·m-%d")
+          echo "Current Date: $current_date"
+
+          # Extract commit hash of HEAD
+          commit_hash=$(git rev-parse --short HEAD)
+          echo "Current Commit Hash: $commit_hash"
+
+          # Extract date and commit from the tag
+          tag="${{env.tag}}"
+          echo "Validating Tag: $tag"
+
+          # Regex to check tag format: vYYYY-MM-DD+sha:abcdefg
+          if [[ "$tag" =~ ^v([0-9]{4}-[0-9]{2}-[0-9]{2})\+sha:([a-f0-9]+)$ ]]; then
+            tag_date="${BASH_REMATCH[1]}"
+            tag_commit="${BASH_REMATCH[2]}"
+
+            echo "Extracted Tag Date: $tag_date"
+            echo "Extracted Tag Commit Hash: $tag_commit"
+
+            # Compare extracted date with current date
+            if [[ "$tag_date" != "$current_date" ]]; then
+              echo "❌ ERROR: Tag date ($tag_date) does not match today's date ($current_date)!"
+              exit 1
+            fi
+
+            # Compare extracted commit hash with actual commit hash
+            if [[ "$tag_commit" != "$commit_hash" ]]; then
+              echo "❌ ERROR: Tag commit hash ($tag_commit) does not match the current commit ($commit_hash)!"
+              exit 1
+            fi
+
+            echo "✅ Tag validation successful!"
+          else
+            echo "❌ ERROR: Tag format is incorrect! Expected format: vYYYY-MM-DD+sha:abcdefg"
+            exit 1
+          fi
+
+  # Job 2: Job for uploading a release to GitHub and an artifact to GAR
+  uploading-release-to-GitHub-and_GAR:
+    name: 'Check tag'
+    runs-on: ubuntu-latest
+    needs: well-tag-triggered-job
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TZ: Europe/Madrid  # Set the timezone to your local timezone
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps: 
+
+      # Step 1: Install Go
       - name: Setting up Golang
         uses: actions/setup-go@v4
         with:
           go-version: '1.21'
 
-      # Step 3: Build all Go filess
+      # Step 2: Build all Go filess
       - name: Build All Go Files
         id: build_step
         run: |
@@ -52,19 +106,19 @@ jobs:
             go build -o "build/$output_name" "$file"
           done
 
-      # Step 4: Show Build Results
+      # Step 3: Show Build Results
       - name: List Build Output
         run: |
           echo "Build outputs:"
           ls -lh build/
 
-      # Step 5: Simulating that some testing are done 
+      # Step 4: Simulating that some testing are done 
       - name: Simulating that some testings and checks are done
         run: |
           echo "Simulating that some testings and checks are done"
 
           
-      # Step 6: Create a ZIP archive of the built artifacts
+      # Step 5: Create a ZIP archive of the built artifacts
       - name: Create a ZIP of the built artifacts
         run: |
           echo "Creating ZIP file of the build directory..."
@@ -74,7 +128,7 @@ jobs:
           # Store ZIP file name in an environment variable
           echo "output_name=build_artifacts.zip" >> $GITHUB_ENV
 
-      # Step 7: Compute the SHA256 of the ZIP file
+      # Step 6: Compute the SHA256 of the ZIP file
       - name: Compute the SHA256 of the ZIP file
         run: |
           echo "Computing SHA256 checksum of the ZIP file..."
@@ -83,7 +137,7 @@ jobs:
           echo "SHA256 checksum is: $digest"
 
         
-      # Step 10: Verifying GitHub Token
+      # Step 7: Verifying GitHub Token
       - name: Verify GITHUB_TOKEN
         run: |
           if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
@@ -93,7 +147,7 @@ jobs:
               echo "GITHUB_TOKEN is available."
           fi
 
-      # Step 11: Create a release
+      # Step 8: Create a release
       - name: Create a GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -107,7 +161,7 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 12: Upload each build artifact to the release
+      # Step 9: Upload each built artifact to the release
       - name: Upload build artifacts to the release
         env:
           UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
@@ -123,7 +177,7 @@ jobs:
               "${UPLOAD_URL}?name=$asset_name"
           done
           
-      # Step 13: Login to Google Cloud Registry
+      # Step 10: Login to Google Cloud Registry
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with: 
@@ -132,7 +186,7 @@ jobs:
           service_account: github-actions-auth@polished-medium-445107-i9.iam.gserviceaccount.com
           access_token_lifetime: '600s'
 
-      # Step 14: Upload each build artifact to Google Artifact Registry
+      # Step 11: Upload each built artifact to Google Artifact Registry
       - name: Upload build artifacts to Google Artifact Registry
         id: pushing-GAR
         run: |
