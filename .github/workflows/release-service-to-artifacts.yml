@@ -238,7 +238,7 @@ jobs:
             --destination=./GAR/ \
             "${{ env.service_name }}:${{ env.version_fixed }}:${{ env.service_name }}" \
             --verbosity=debug
-            
+
           # Find the downloaded file dynamically
           downloaded_file=$(ls -1 GAR/ | head -n 1)  # Get the first file in GAR/
           
@@ -259,4 +259,40 @@ jobs:
           fi
 
           echo "GAR Downloaded SHA256: $gar_downloaded_sha256"
-          echo "gar_downloaded_sha256=$gar_downloaded_sha256" >> $GITHUB_ENV      
+          echo "gar_downloaded_sha256=$gar_downloaded_sha256" >> $GITHUB_ENV
+          
+          # Get the GitHub's latest release
+
+          ASSET_URL=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/${{ env.tag }} \
+            | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
+
+          if [ -z "$ASSET_URL" ]; then
+            echo "Error: No .zip file found in the latest release!"
+            exit 1
+          fi
+
+          echo "Downloading ZIP file from: $ASSET_URL"
+          wget -O release.zip "$ASSET_URL"
+
+          mkdir extracted_release
+          unzip release.zip -d extracted_release
+          echo "Extracted files:"
+          ls -l extracted_release/
+
+          # ------------------------
+          # Compute SHA256 of the ZIP File
+          # ------------------------
+          echo "Computing SHA256 of downloaded GitHub release ZIP..."
+          github_release_sha256=$(sha256sum release.zip | awk '{ print $1 }')
+
+          if [ -z "$github_release_sha256" ]; then
+              echo "Error: Failed to compute SHA256 of the GitHub release ZIP"
+              exit 1
+          fi
+
+          echo "GitHub Release ZIP SHA256: $github_release_sha256"
+          echo "github_release_sha256=$github_release_sha256" >> $GITHUB_ENV
+
+
+
+
