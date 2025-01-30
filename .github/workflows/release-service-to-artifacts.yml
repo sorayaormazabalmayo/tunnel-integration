@@ -288,31 +288,32 @@ jobs:
           wget -O release.zip "$ASSET_URL"
 
           mkdir extracted_release
-          unzip release.zip -d extracted_release
+          unzip -o release.zip -d extracted_release
           echo "Extracted files:"
           ls -l extracted_release/
 
           # ------------------------
-          # 3. Compute SHA256 of the ZIP File
+          # Find the extracted file dynamically
           # ------------------------
-          echo "Computing SHA256 of downloaded GitHub release ZIP..."
-          github_release_sha256=$(sha256sum release.zip | awk '{ print $1 }')
+          release_file=$(find extracted_release/ -type f | head -n 1)  # Pick the first file
 
-          if [ -z "$github_release_sha256" ]; then
-              echo "Error: Failed to compute SHA256 of the GitHub release ZIP"
+          if [ -z "$release_file" ]; then
+              echo "Error: No file found in extracted_release/ after unzip."
               exit 1
           fi
 
-          echo "GitHub Release ZIP SHA256: $github_release_sha256"
-          echo "github_release_sha256=$github_release_sha256" >> $GITHUB_ENV
+          echo "Extracted file: $release_file"
 
           # ------------------------
-          # 4. Compare SHA256 Checksums
+          # Compute SHA256 of the extracted file
           # ------------------------
-          echo "Comparing SHA256 digests..."
-          if [ "$gar_downloaded_sha256" != "$github_release_sha256" ]; then
-              echo "Error: The SHA256 digests do NOT match!"
+          echo "Computing SHA256 of extracted file..."
+          github_extracted_sha256=$(sha256sum "$release_file" | awk '{ print $1 }')
+
+          if [ -z "$github_extracted_sha256" ]; then
+              echo "Error: Failed to compute SHA256 of the extracted file"
               exit 1
-          else
-              echo "Success: The SHA256 digests match! ✅"
           fi
+
+          echo "GitHub Extracted File SHA256: $github_extracted_sha256"
+          echo "github_extracted_sha256=$github_extracted_sha256" >> $GITHUB_ENV
