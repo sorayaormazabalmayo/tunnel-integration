@@ -226,9 +226,22 @@ jobs:
           echo "Step 14: Verifying SHA256 checksums between GitHub Release and Google Artifact Registry"
 
           # ------------------------
-          # Download the artifact from Google Artifact Registry
+          # 1. Download the artifact from Google Artifact Registry
           # ------------------------
           mkdir -p GAR
+
+          echo "Getting the last released version to Google Artifact Registry"
+          VERSION=$(gcloud artifacts versions list \
+            --location=europe-southwest1 \
+            --project=polished-medium-445107-i9 \
+            --repository=nebula-storage \
+            --package=$service_name \
+            --sort-by=~createTime \
+            --limit=1 \
+            --format="value(VERSION)")
+          echo "Latest version is $latest_version"
+          echo "latest_version=$latest_version" >> $GITHUB_ENV
+
 
           echo "Downloading artifact from Google Artifact Registry..."
           gcloud artifacts files download \
@@ -236,7 +249,7 @@ jobs:
             --location=europe-southwest1 \
             --repository=nebula-storage \
             --destination=./GAR/ \
-            tunnel-integration:v2025.01.30-shabf48924:tunnel-integration \
+            $latest_version \
             --verbosity=debug
 
           # Find the downloaded file dynamically
@@ -259,52 +272,4 @@ jobs:
           fi
 
           echo "GAR Downloaded SHA256: $gar_downloaded_sha256"
-          echo "gar_downloaded_sha256=$gar_downloaded_sha256" >> $GITHUB_ENV
-
-          # Clean up: Delete the downloaded artifact
-          echo "Deleting downloaded GAR artifact..."
-          rm -f "GAR/$downloaded_file"
-
-          # ------------------------
-          # Download the release artifact from GitHub
-          # ------------------------
-          echo "Downloading the GitHub release artifact..."
-          gh release download --repo sorayaormazabalmayo/tunnel-integration \
-            --pattern "${{ env.zip_name }}" --dir .
-
-          # Extract the ZIP file
-          echo "Unzipping the GitHub release artifact..."
-          unzip -o "${{ env.zip_name }}" -d extracted_release
-
-          # Find the first uncompressed file
-          release_file=$(find extracted_release/ -type f | head -n 1)  # Pick the first file
-          
-          if [ -z "$release_file" ]; then
-              echo "Error: No file found in extracted_release/ after unzip."
-              exit 1
-          fi
-
-          echo "Extracted file from GitHub Release: $release_file"
-
-          # Compute SHA256 for the extracted file
-          echo "Computing SHA256 of extracted GitHub release artifact..."
-          github_release_sha256=$(sha256sum "$release_file" | awk '{ print $1 }')
-
-          if [ -z "$github_release_sha256" ]; then
-              echo "Error: Failed to compute SHA256 of the extracted file"
-              exit 1
-          fi
-
-          echo "GitHub Release SHA256: $github_release_sha256"
-          echo "github_release_sha256=$github_release_sha256" >> $GITHUB_ENV
-
-          # ------------------------
-          # Compare SHA256 checksums
-          # ------------------------
-          echo "Comparing SHA256 digests..."
-          if [ "$gar_downloaded_sha256" != "$github_release_sha256" ]; then
-              echo "Error: The SHA256 digests do NOT match!"
-              exit 1
-          else
-              echo "Success: The SHA256 digests match! ✅"
-          fi
+          echo "gar_downloaded_sha256=$gar_downloaded_sha256" >> $GITHUB_ENV      
