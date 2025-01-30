@@ -230,28 +230,15 @@ jobs:
           # ------------------------
           mkdir -p GAR
 
-          echo "Getting the last released version to Google Artifact Registry"
-          VERSION=$(gcloud artifacts versions list \
-            --location=europe-southwest1 \
-            --project=polished-medium-445107-i9 \
-            --repository=nebula-storage \
-            --package=${{ env.service_name }}
-            --sort-by=~createTime \
-            --limit=1 \
-            --format="value(VERSION)")
-          echo "Latest version is $VERSION"
-          echo "latest_version=$VERSION" >> $GITHUB_ENV
-
-
           echo "Downloading artifact from Google Artifact Registry..."
           gcloud artifacts files download \
             --project=polished-medium-445107-i9 \
             --location=europe-southwest1 \
             --repository=nebula-storage \
             --destination=./GAR/ \
-            $latest_version \
+            "${{ env.service_name }}:${{ env.version_fixed }}:${{ env.service_name }}" \
             --verbosity=debug
-
+            
           # Find the downloaded file dynamically
           downloaded_file=$(ls -1 GAR/ | head -n 1)  # Get the first file in GAR/
           
