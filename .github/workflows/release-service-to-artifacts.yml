@@ -138,7 +138,6 @@ jobs:
           digest=$(sha256sum "${{ env.zip_name }}" | awk '{ print $1 }')
           echo "digest=$digest" >> $GITHUB_ENV
           echo "SHA256 checksum is: $digest"
-
         
       # Step 8: Verifying GitHub Token
       - name: Verify GITHUB_TOKEN
@@ -186,11 +185,11 @@ jobs:
         id: pushing-GAR
         run: |
           echo "Uploading each built artifact to Google Artifact Registry..."
-          service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+          echo "service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)">>$GITHUB_ENV
           
           # Correcting the version format by replacing "+" with "-"
           version="${{env.tag}}"
-          version_fixed=$(echo "$version" | tr '+' '-')
+          echo "version_fixed=$(echo "$version" | tr '+' '-')">>$GITHUB_ENV
 
           echo "Original version: $version"
           echo "Modified version: $version_fixed"
@@ -211,6 +210,66 @@ jobs:
           done
 
           echo "Successfully uploaded all artifacts to Google Artifact Registry"
+
+      # Step 13: Verifying that the SHA from GitHub Releases matches the SHA from GAR
+      - name: Verifying the SHAs from GitHub Releases match the SHA from GAR
+        id: verifying-digests
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Step 13: Verifying SHA256 checksums between GitHub Release and Google Artifact Registry"
+
+          # Fetch the digest from Google Artifact Registry (GAR)
+          echo "Fetching digest from GAR..."
+          gar_digest=$(gcloud artifacts versions describe "${{ env.version_fixed }}" \
+            --package="${{ env.service_name }}" \
+            --repository=nebula-storage \
+            --location=europe-southwest1 \
+            --format='value(digest)')
+          
+          if [ -z "$gar_digest" ]; then
+            echo "Error: Failed to retrieve digest from GAR"
+            exit 1
+          fi
+
+          echo "GAR SHA256 Digest: $gar_digest"
+          echo "gar_digest=$gar_digest" >> $GITHUB_ENV
+
+          # Download the release asset from GitHub
+          echo "Downloading the GitHub release artifact..."
+          gh release download --repo sorayaormazabalmayo/tunnel-integration \
+            --pattern "${{ env.zip_name }}" --dir .
+
+          # Extract the ZIP file
+          echo "Unzipping the GitHub release artifact..."
+          unzip -o "${{ env.zip_name }}" -d extracted_release
+
+          # Compute SHA256 for each uncompressed file in the extracted folder
+          echo "Computing SHA256 of extracted files..."
+          release_file=$(find extracted_release/ -type f | head -n 1)  # Pick the first file
+          github_release_sha256=$(sha256sum "$release_file" | awk '{ print $1 }')
+
+          if [ -z "$github_release_sha256" ]; then
+            echo "Error: Failed to compute SHA256 of the extracted file"
+            exit 1
+          fi
+
+          echo "GitHub Release SHA256: $github_release_sha256"
+          echo "github_release_sha256=$github_release_sha256" >> $GITHUB_ENV
+
+          # Compare SHA256 checksums
+          echo "Comparing SHA256 digests..."
+          if [ "$gar_digest" != "$github_release_sha256" ]; then
+            echo "Error: The SHA256 digests do NOT match!"
+            exit 1
+          else
+            echo "Success: The SHA256 digests match! ✅"
+          fi
+
+
+
+
+  
     
 
 
