@@ -186,13 +186,14 @@ jobs:
         run: |
           echo "Uploading each built artifact to Google Artifact Registry..."
           echo "service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)">>$GITHUB_ENV
+          echo "Uploading service name ${{env.service_name}}"
           
           # Correcting the version format by replacing "+" with "-"
           version="${{env.tag}}"
           echo "version_fixed=$(echo "$version" | tr '+' '-')">>$GITHUB_ENV
 
           echo "Original version: $version"
-          echo "Modified version: $version_fixed"
+          echo "Modified version: "${{ env.version_fixed }}"
 
           for file in build/*; do
             artifact_name=$(basename "$file")
@@ -202,8 +203,8 @@ jobs:
               --repository=nebula-storage \
               --location=europe-southwest1 \
               --project=polished-medium-445107-i9 \
-              --package="$service_name" \
-              --version="$version_fixed" \
+              --package="${{ env.service_name }}" \
+              --version= "${{ env.version_fixed }}" \
               --source="$file"
 
             echo "Uploaded $artifact_name to Google Artifact Registry"
