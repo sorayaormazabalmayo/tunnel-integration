@@ -223,39 +223,39 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Verifying SHA256 checksums between GitHub Release and Google Artifact Registry"
+          echo "Step 14: Verifying SHA256 checksums between GitHub Release and Google Artifact Registry"
 
-          # Fetch artifact name from Google Artifact Registry
-          echo "Fetching artifact file from GAR..."
-          artifact_path=$(gcloud artifacts files list \
-            --repository=nebula-storage \
-            --location=europe-southwest1 \
+          # ------------------------
+          # Download the artifact from Google Artifact Registry
+          # ------------------------
+          mkdir -p GAR
+
+          echo "Downloading artifact from Google Artifact Registry..."
+          gcloud artifacts files download \
             --project=polished-medium-445107-i9 \
-            --format="value(name)" \
-            --filter="package=${{ env.service_name }} AND version=${{ env.version_fixed }}")
+            --location=europe-southwest1 \
+            --repository=nebula-storage \
+            --destination=./GAR/ \
+            tunnel-integration:v2025.01.30-shabf48924:tunnel-integration \
+            --verbosity=debug
 
-          if [ -z "$artifact_path" ]; then
-            echo "Error: Failed to find the artifact in GAR."
-            exit 1
+          # Find the downloaded file dynamically
+          downloaded_file=$(ls -1 GAR/ | head -n 1)  # Get the first file in GAR/
+          
+          if [ -z "$downloaded_file" ]; then
+              echo "Error: No file found in GAR/ after download."
+              exit 1
           fi
 
-          echo "Artifact path: $artifact_path"
+          echo "Downloaded file from GAR: $downloaded_file"
 
-          # Download the artifact from Google Artifact Registry
-          artifact_name=$(basename "$artifact_path")
-          gcloud artifacts files download "$artifact_path" \
-            --location=europe-southwest1 \
-            --repository=nebula-storage \
-            --project=polished-medium-445107-i9 \
-            --destination="./$artifact_name"
-
-          # Compute SHA256 of the downloaded artifact
+          # Compute SHA256 of the downloaded file from GAR
           echo "Computing SHA256 of downloaded GAR artifact..."
-          gar_downloaded_sha256=$(sha256sum "$artifact_name" | awk '{ print $1 }')
+          gar_downloaded_sha256=$(sha256sum "GAR/$downloaded_file" | awk '{ print $1 }')
 
           if [ -z "$gar_downloaded_sha256" ]; then
-            echo "Error: Failed to compute SHA256 of the downloaded artifact"
-            exit 1
+              echo "Error: Failed to compute SHA256 of the downloaded artifact"
+              exit 1
           fi
 
           echo "GAR Downloaded SHA256: $gar_downloaded_sha256"
@@ -263,9 +263,11 @@ jobs:
 
           # Clean up: Delete the downloaded artifact
           echo "Deleting downloaded GAR artifact..."
-          rm -f "$artifact_name"
+          rm -f "GAR/$downloaded_file"
 
-          # Download the release asset from GitHub
+          # ------------------------
+          # Download the release artifact from GitHub
+          # ------------------------
           echo "Downloading the GitHub release artifact..."
           gh release download --repo sorayaormazabalmayo/tunnel-integration \
             --pattern "${{ env.zip_name }}" --dir .
@@ -274,33 +276,35 @@ jobs:
           echo "Unzipping the GitHub release artifact..."
           unzip -o "${{ env.zip_name }}" -d extracted_release
 
-          # Compute SHA256 for each uncompressed file in the extracted folder
-          echo "Computing SHA256 of extracted files..."
+          # Find the first uncompressed file
           release_file=$(find extracted_release/ -type f | head -n 1)  # Pick the first file
+          
+          if [ -z "$release_file" ]; then
+              echo "Error: No file found in extracted_release/ after unzip."
+              exit 1
+          fi
+
+          echo "Extracted file from GitHub Release: $release_file"
+
+          # Compute SHA256 for the extracted file
+          echo "Computing SHA256 of extracted GitHub release artifact..."
           github_release_sha256=$(sha256sum "$release_file" | awk '{ print $1 }')
 
           if [ -z "$github_release_sha256" ]; then
-            echo "Error: Failed to compute SHA256 of the extracted file"
-            exit 1
+              echo "Error: Failed to compute SHA256 of the extracted file"
+              exit 1
           fi
 
           echo "GitHub Release SHA256: $github_release_sha256"
           echo "github_release_sha256=$github_release_sha256" >> $GITHUB_ENV
 
+          # ------------------------
           # Compare SHA256 checksums
+          # ------------------------
           echo "Comparing SHA256 digests..."
           if [ "$gar_downloaded_sha256" != "$github_release_sha256" ]; then
-            echo "Error: The SHA256 digests do NOT match!"
-            exit 1
+              echo "Error: The SHA256 digests do NOT match!"
+              exit 1
           else
-            echo "Success: The SHA256 digests match! ✅"
+              echo "Success: The SHA256 digests match! ✅"
           fi
-
-
-
-
-
-  
-    
-
-
