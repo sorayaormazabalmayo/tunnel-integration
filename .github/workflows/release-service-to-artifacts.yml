@@ -188,7 +188,6 @@ jobs:
           version_fixed=$(echo "${{ env.tag }}" | tr '+' '-')
           echo "version_fixed=$version_fixed" >> $GITHUB_ENV
 
-          echo "Service Name: $service_name"
           echo "Version Fixed: $version_fixed"
 
       # Step 13: Upload each built artifact to Google Artifact Registry
@@ -224,23 +223,47 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Step 13: Verifying SHA256 checksums between GitHub Release and Google Artifact Registry"
+          echo "Verifying SHA256 checksums between GitHub Release and Google Artifact Registry"
 
-          # Fetch the digest from Google Artifact Registry (GAR)
-          echo "Fetching digest from GAR..."
-          gar_digest=$(gcloud artifacts versions describe "${{ env.version_fixed }}" \
-            --package="${{ env.service_name }}" \
+          # Fetch artifact name from Google Artifact Registry
+          echo "Fetching artifact file from GAR..."
+          artifact_path=$(gcloud artifacts files list \
             --repository=nebula-storage \
             --location=europe-southwest1 \
-            --format='value(digest)')
-          
-          if [ -z "$gar_digest" ]; then
-            echo "Error: Failed to retrieve digest from GAR"
+            --project=polished-medium-445107-i9 \
+            --format="value(name)" \
+            --filter="package=${{ env.service_name }} AND version=${{ env.version_fixed }}")
+
+          if [ -z "$artifact_path" ]; then
+            echo "Error: Failed to find the artifact in GAR."
             exit 1
           fi
 
-          echo "GAR SHA256 Digest: $gar_digest"
-          echo "gar_digest=$gar_digest" >> $GITHUB_ENV
+          echo "Artifact path: $artifact_path"
+
+          # Download the artifact from Google Artifact Registry
+          artifact_name=$(basename "$artifact_path")
+          gcloud artifacts files download "$artifact_path" \
+            --location=europe-southwest1 \
+            --repository=nebula-storage \
+            --project=polished-medium-445107-i9 \
+            --destination="./$artifact_name"
+
+          # Compute SHA256 of the downloaded artifact
+          echo "Computing SHA256 of downloaded GAR artifact..."
+          gar_downloaded_sha256=$(sha256sum "$artifact_name" | awk '{ print $1 }')
+
+          if [ -z "$gar_downloaded_sha256" ]; then
+            echo "Error: Failed to compute SHA256 of the downloaded artifact"
+            exit 1
+          fi
+
+          echo "GAR Downloaded SHA256: $gar_downloaded_sha256"
+          echo "gar_downloaded_sha256=$gar_downloaded_sha256" >> $GITHUB_ENV
+
+          # Clean up: Delete the downloaded artifact
+          echo "Deleting downloaded GAR artifact..."
+          rm -f "$artifact_name"
 
           # Download the release asset from GitHub
           echo "Downloading the GitHub release artifact..."
@@ -266,12 +289,13 @@ jobs:
 
           # Compare SHA256 checksums
           echo "Comparing SHA256 digests..."
-          if [ "$gar_digest" != "$github_release_sha256" ]; then
+          if [ "$gar_downloaded_sha256" != "$github_release_sha256" ]; then
             echo "Error: The SHA256 digests do NOT match!"
             exit 1
           else
             echo "Success: The SHA256 digests match! ✅"
           fi
+
 
 
 
