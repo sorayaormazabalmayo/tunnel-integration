@@ -98,18 +98,23 @@ jobs:
         with:
           go-version: '1.21'
 
-      # Step 3: List all Go files in the directory
-      - name: List All Go Files
-        run: |
-          echo "Listing all Go files in the directory:"
-          find . -type f -name "*.go"
-
-      # Step 4: Build all Go files
+      # Step 3: Build all Go files
       - name: Build All Go Files
         id: build_step
         run: |
           echo "Building all Go files in the directory..."
-          go build
+          mkdir -p build
+          find . -type f -name "*.go" | while read -r file; do
+            echo "Building $file..."
+            output_name=$(basename "$file" .go)
+            go build -o "build/$output_name" "$file"
+          done
+
+      # Step 4: Show Build Results
+      - name: List Build Output
+        run: |
+          echo "Build outputs:"
+          ls -lh build/
 
       # Step 5: Simulating that some testing are done 
       - name: Simulating that some testings and checks are done
@@ -118,28 +123,21 @@ jobs:
           echo "tag=${{github.ref_name}}">>$GITHUB_ENV
           echo "Simulating that some testings and checks are done"
           
-      # Step 6: Create a ZIP archive of the built artifacts
-
-      # - name: Create a ZIP of the built artifacts
-      #   run: |
-      #     echo "Creating ZIP file of the build directory..."
-      #     zip -r build_artifacts.zip build/
-      #     echo "ZIP file created: build_artifacts.zip"
-          
-      #     # Store ZIP file name in an environment variable
-      #     echo "output_name=build_artifacts.zip" >> $GITHUB_ENV
-
-
-      
-      # Step 7: Compute the SHA256 of the ZIP file
-      - name: Compute the SHA256 of the ZIP file
+      # Step 6: Compress Build Artifacts
+      - name: Compress Build Artifacts
         run: |
-          echo "Computing SHA256 checksum of the ZIP file..."
-          binary_name=$(basename $(go list -m))  # Get the module name as the default binary name
-          digest=$(sha256sum "$binary_name")
-          
-          # Print the digest to console
-          echo "SHA256 checksum of $binary_name: $digest"
+          service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)
+          zip_name="${service_name}.zip"
+          echo "zip_name=$zip_name" >> $GITHUB_ENV
+          zip -r "$zip_name" build/
+      
+      # Step 7: Compute the SHA256
+      - name: Compute the SHA256 of the .zip
+        run: |
+          echo "Computing SHA256 checksum of the .zip"
+          digest=$(sha256sum "${{ env.zip_name }}" | awk '{ print $1 }')
+          echo "digest=$digest" >> $GITHUB_ENV
+          echo "SHA256 checksum is: $digest"
 
         
       # Step 8: Verifying GitHub Token
@@ -151,7 +149,6 @@ jobs:
           else
               echo "GITHUB_TOKEN is available."
           fi
-
       # Step 9: Create a release
       - name: Create a GitHub Release
         id: create_release
@@ -166,28 +163,14 @@ jobs:
           draft: false
           prerelease: false
 
-      # Step 10: Upload each built artifact to the release
-      - name: Upload build artifacts to the release
-        env:
-          UPLOAD_URL: ${{ steps.create_release.outputs.upload_url }}
-        run: |
-          echo "Uploading individual build artifacts..."
-          
-          for file in build/*; do
-            if [[ -f "$file" ]]; then  # ✅ Check if it's a file (not a directory)
-              echo "Uploading $file"
-              asset_name=$(basename "$file")
-
-              curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H "Content-Type: application/octet-stream" \
-                --data-binary @"$file" \
-                "${UPLOAD_URL}?name=$asset_name"
-
-              echo "Uploaded $file successfully!"
-            else
-              echo "Skipping non-file: $file"
-            fi
-          done
+      # Step 10: Upload the ZIP file as a release asset
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.zip_name }}
+          asset_name: ${{ env.zip_name }}
+          asset_content_type: application/zip
           
       # Step 11: Login to Google Cloud Registry
       - name: Authenticate with Google Cloud
