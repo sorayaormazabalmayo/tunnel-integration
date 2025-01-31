@@ -4,7 +4,7 @@
 set -e
 
 # Get the current date in the desired format
-current_date=$(date -"%Y.%m.%d")
+current_date=$(date +"%Y.%m.%d")
 
 # Ensure that we are up to date with remote 
 git pull 

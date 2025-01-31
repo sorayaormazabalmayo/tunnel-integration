@@ -194,7 +194,6 @@ jobs:
           echo "Uploading service name ${{ env.service_name }}"
 
           echo "Original version: ${{ env.tag }}"
-          echo "Modified version: ${{ env.version }}"
 
           for file in build/*; do
             artifact_name=$(basename "$file")
@@ -205,7 +204,7 @@ jobs:
               --location=europe-southwest1 \
               --project=polished-medium-445107-i9 \
               --package="${{ env.service_name }}" \
-              --version="${{ env.version }}" \
+              --version="${{ env.tag }}" \
               --source="$file"
 
             echo "Uploaded $artifact_name to Google Artifact Registry"
@@ -229,7 +228,7 @@ jobs:
             --location=europe-southwest1 \
             --repository=nebula-storage \
             --destination=./GAR/ \
-            "${{ env.service_name }}:${{ env.version }}:${{ env.service_name }}" \
+            "${{ env.service_name }}:${{ env.tag }}:${{ env.service_name }}" \
             --verbosity=debug
 
           # Find the downloaded file dynamically and fix any URL encoding
