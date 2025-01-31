@@ -38,7 +38,7 @@ jobs:
       - name: Validate the Tag Format (Date and Commit SHA)
         run: |
           # Extracting the current date in YYYY.MM.DD format
-          current_date=$(date -u +"%Y.%m.%d")  # ✅ Fixed date format
+          current_date=$(date -u -"%Y.%m.%d")  # ✅ Fixed date format
           echo "Current Date: $current_date"
 
           # Extract commit hash of HEAD
@@ -49,8 +49,8 @@ jobs:
           tag="${{ env.tag }}"  # ✅ Ensure env variable reference is correct
           echo "Validating Tag: $tag"
 
-          # ✅ Regex to check tag format: vYYYY.MM.DD+shaabcdefg
-          if [[ "$tag" =~ ^v([0-9]{4}\.[0-9]{2}\.[0-9]{2})\+sha([a-f0-9]+)$ ]]; then
+          # ✅ Regex to check tag format: vYYYY.MM.DD-shaabcdefg
+          if [[ "$tag" =~ ^v([0-9]{4}\.[0-9]{2}\.[0-9]{2})\-sha([a-f0-9]+)$ ]]; then
             tag_date="${BASH_REMATCH[1]}"
             tag_commit="${BASH_REMATCH[2]}"
 
@@ -71,7 +71,7 @@ jobs:
 
             echo "✅ Tag validation successful!"
           else
-            echo "❌ ERROR: Tag format is incorrect! Expected format: vYYYY.MM.DD+shaabcdefg"
+            echo "❌ ERROR: Tag format is incorrect! Expected format: vYYYY.MM.DD-shaabcdefg"
             exit 1
           fi
 
@@ -185,10 +185,6 @@ jobs:
         run: |
           echo "Setting environment variables..."
           echo "service_name=$(echo "${GITHUB_REPOSITORY}" | cut -d'/' -f2)" >> $GITHUB_ENV
-          version_fixed=$(echo "${{ env.tag }}" | tr '+' '-')
-          echo "version_fixed=$version_fixed" >> $GITHUB_ENV
-
-          echo "Version Fixed: $version_fixed"
 
       # Step 13: Upload each built artifact to Google Artifact Registry
       - name: Upload build artifacts to Google Artifact Registry
@@ -198,7 +194,7 @@ jobs:
           echo "Uploading service name ${{ env.service_name }}"
 
           echo "Original version: ${{ env.tag }}"
-          echo "Modified version: ${{ env.version_fixed }}"
+          echo "Modified version: ${{ env.version }}"
 
           for file in build/*; do
             artifact_name=$(basename "$file")
@@ -209,7 +205,7 @@ jobs:
               --location=europe-southwest1 \
               --project=polished-medium-445107-i9 \
               --package="${{ env.service_name }}" \
-              --version="${{ env.version_fixed }}" \
+              --version="${{ env.version }}" \
               --source="$file"
 
             echo "Uploaded $artifact_name to Google Artifact Registry"
@@ -233,7 +229,7 @@ jobs:
             --location=europe-southwest1 \
             --repository=nebula-storage \
             --destination=./GAR/ \
-            "${{ env.service_name }}:${{ env.version_fixed }}:${{ env.service_name }}" \
+            "${{ env.service_name }}:${{ env.version }}:${{ env.service_name }}" \
             --verbosity=debug
 
           # Find the downloaded file dynamically and fix any URL encoding
