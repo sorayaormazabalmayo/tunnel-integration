@@ -3,5 +3,5 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Printf("Tunnel-integration. Version: 41")
+	fmt.Printf("Tunnel-integration. Version: 42")
 }
