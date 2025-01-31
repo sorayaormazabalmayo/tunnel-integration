@@ -38,7 +38,7 @@ jobs:
       - name: Validate the Tag Format (Date and Commit SHA)
         run: |
           # Extracting the current date in YYYY.MM.DD format
-          current_date=$(date -u -"%Y.%m.%d")  # ✅ Fixed date format
+          current_date=$(date -u +"%Y.%m.%d")  # ✅ Fixed date format
           echo "Current Date: $current_date"
 
           # Extract commit hash of HEAD
