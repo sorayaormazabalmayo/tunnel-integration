@@ -4,7 +4,7 @@
 set -e
 
 # Get the current date in the desired format
-current_date=$(date +"%Y.%m.%d")
+current_date=$(date -"%Y.%m.%d")
 
 # Ensure that we are up to date with remote 
 git pull 
@@ -14,7 +14,7 @@ commit_hash=$(git rev-parse --short HEAD)
 
 # Variable for the tag 
 
-tag="v${current_date}+sha${commit_hash}"
+tag="v${current_date}-sha${commit_hash}"
 
 # Output the future release tag 
 
